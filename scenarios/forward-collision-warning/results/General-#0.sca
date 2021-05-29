@@ -1,0 +1,31 @@
+version 2
+run General-0-20210521-15:11:44-5696
+attr configname General
+attr datetime 20210521-15:11:44
+attr experiment General
+attr inifile omnetpp.ini
+attr iterationvars ""
+attr iterationvarsf ""
+attr measurement ""
+attr network artery.inet.World
+attr processid 5696
+attr repetition 0
+attr replication #0
+attr resultdir results
+attr runnumber 0
+attr seedset 0
+param *.traci.core.version -1
+param *.traci.launcher.typename "\"PosixLauncher\""
+param *.traci.launcher.sumo "\"sumo-gui\""
+param *.traci.launcher.sumocfg "\"exec.sumocfg\""
+param *.node[*].wlan[*].typename "\"VanetNic\""
+param *.node[*].wlan[*].radio.channelNumber 180
+param *.node[*].wlan[*].radio.carrierFrequency "5.9 GHz"
+param *.node[*].wlan[*].radio.transmitter.power "200 mW"
+param *.node[*].middleware.updateInterval 0.1s
+param *.node[*].middleware.datetime "\"2017-06-26 12:00:00\""
+param *.node[*].middleware.services "xmldoc(\"services.xml\")"
+param *.node[*].middleware.DEN.useCases "xmldoc(\"usecases.xml\")"
+
+scalar World.traci.launcher port 52913
+

@@ -1,0 +1,14 @@
+***Starting server on port 52913 ***
+Loading net-file from 'ForwardCollisionWarning.net.xml' ... done (16ms).
+Loading done.
+Simulation started with time: 0.00
+Simulation ended at time: 12.00
+Performance: 
+ Duration: 1242.38s
+ Real time factor: 0.00965888
+ UPS: 0.024147
+Vehicles: 
+ Inserted: 4
+ Running: 4
+ Waiting: 0
+
