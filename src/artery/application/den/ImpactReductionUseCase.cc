@@ -21,6 +21,7 @@ namespace den
 void ImpactReductionContainerExchange::check()
 {
     if (mPendingRequest) {
+        //std::cout<<"ImpactReductionContainerExchange::check() sent denm"<<std::endl;
         transmitMessage(RequestResponseIndication_request);
         mPendingRequest = false;
     }

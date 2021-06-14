@@ -27,6 +27,7 @@ namespace artery
 {
 
 static const simsignal_t scSignalCamReceived = cComponent::registerSignal("CamReceived");
+static const simsignal_t scSignalCamSent = cComponent::registerSignal("CamSent");
 
 Define_Module(ExampleService)
 
@@ -100,6 +101,8 @@ void ExampleService::trigger()
 
 			// send packet on specific network interface
 			request(req, packet, network.get());
+			auto& vehicle = getFacilities().get_const<traci::VehicleController>();
+			//std::cout<<" cam sent "<<vehicle.getVehicleId()<<std::endl;
 		} else {
 			EV_ERROR << "No network interface available for channel " << channel << "\n";
 		}
@@ -111,8 +114,10 @@ void ExampleService::receiveSignal(cComponent* source, simsignal_t signal, cObje
 	Enter_Method("receiveSignal");
 
 	if (signal == scSignalCamReceived) {
+		
 		auto& vehicle = getFacilities().get_const<traci::VehicleController>();
 		EV_INFO << "Vehicle " << vehicle.getVehicleId() << " received a CAM in sibling serivce\n";
+		std::cout<<" cam received "<<vehicle.getVehicleId()<<std::endl;
 	}
 }
 

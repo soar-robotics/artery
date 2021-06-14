@@ -17,4 +17,6 @@ package artery.application;
 
 simple ExampleService like ItsG5Service
 {
+    double gnDestinationLongitude @unit(deg) = default(0.0 deg);
+    double gnDestinationLatitude @unit(deg) = default(0.0 deg);
 }

@@ -5,7 +5,7 @@
  */
 
 #include "artery/application/DenService.h"
-#include "artery/application/den/EmergencyBrakeLight.h"
+#include "artery/application/den/EmergencyVehicleWarning.h"
 #include "artery/application/SampleBufferAlgorithm.h"
 #include "artery/application/VehicleDataProvider.h"
 #include <vanetza/asn1/its/DangerousSituationSubCauseCode.h>
@@ -19,9 +19,9 @@ namespace artery
 namespace den
 {
 
-Define_Module(EmergencyBrakeLight)
+Define_Module(EmergencyVehicleWarning)
 
-void EmergencyBrakeLight::initialize(int stage)
+void EmergencyVehicleWarning::initialize(int stage)
 {
     UseCase::initialize(stage);
     if (stage == 0)
@@ -36,30 +36,29 @@ void EmergencyBrakeLight::initialize(int stage)
     }
 }
 
-void EmergencyBrakeLight::check()
+void EmergencyVehicleWarning::check()
 {
     mAccelerationSampler.feed(mVdp->acceleration(), mVdp->updated());
-    if (!isDetectionBlocked() && checkConditions())
+    //if (!isDetectionBlocked() && checkConditions())
     {
-        std::cout<<"EmergencyBrakeLight::check() sent denm"<<std::endl;
-        blockDetection();
+        //blockDetection();
         auto message = createMessage();
         auto request = createRequest();
         mService->sendDenm(std::move(message), request);
     }
 }
 
-bool EmergencyBrakeLight::checkConditions()
+bool EmergencyVehicleWarning::checkConditions()
 {
     return checkEgoSpeed() && checkEgoDeceleration();
 }
 
-bool EmergencyBrakeLight::checkEgoSpeed() const
+bool EmergencyVehicleWarning::checkEgoSpeed() const
 {
     return mVdp->speed() > mSpeedThreshold;
 }
 
-bool EmergencyBrakeLight::checkEgoDeceleration() const
+bool EmergencyVehicleWarning::checkEgoDeceleration() const
 {
     const auto& samples = mAccelerationSampler.buffer();
     return samples.full() && std::all_of(samples.begin(), samples.end(),
@@ -68,7 +67,7 @@ bool EmergencyBrakeLight::checkEgoDeceleration() const
         });
 }
 
-vanetza::asn1::Denm EmergencyBrakeLight::createMessage()
+vanetza::asn1::Denm EmergencyVehicleWarning::createMessage()
 {
     auto msg = createMessageSkeleton();
     msg->denm.management.relevanceDistance = vanetza::asn1::allocate<RelevanceDistance_t>();
@@ -81,15 +80,15 @@ vanetza::asn1::Denm EmergencyBrakeLight::createMessage()
 
     msg->denm.situation = vanetza::asn1::allocate<SituationContainer_t>();
     msg->denm.situation->informationQuality = 1;
-    msg->denm.situation->eventType.causeCode = CauseCodeType_dangerousSituation;
-    msg->denm.situation->eventType.subCauseCode = DangerousSituationSubCauseCode_emergencyElectronicBrakeEngaged;
+    msg->denm.situation->eventType.causeCode = CauseCodeType_emergencyVehicleApproaching;
+    msg->denm.situation->eventType.subCauseCode = DangerousSituationSubCauseCode_unavailable;
 
     // TODO set road type in Location container
     // TODO set lane position in Alacarte container
     return msg;
 }
 
-vanetza::btp::DataRequestB EmergencyBrakeLight::createRequest()
+vanetza::btp::DataRequestB EmergencyVehicleWarning::createRequest()
 {
     namespace geonet = vanetza::geonet;
     using vanetza::units::si::seconds;
@@ -109,16 +108,16 @@ vanetza::btp::DataRequestB EmergencyBrakeLight::createRequest()
 
     return request;
 }
-void EmergencyBrakeLight::indicate(const artery::DenmObject& denmObject1)
+void EmergencyVehicleWarning::indicate(const artery::DenmObject& denmObject1)
 {
     auto cc = denmObject1.situation_cause_code();
     if (den::CauseCode::EmergencyVehicleApproaching == cc)
     {
-        std::cout<<"EmergencyBrakeLight::EmergencyVehicleApproaching indicate"<<std::endl;
+        std::cout<<"EmergencyVehicleWarning::EmergencyVehicleApproaching indicate"<<std::endl;
     }
     else if (den::CauseCode::DangerousSituation == cc)
     {
-        std::cout<<"EmergencyBrakeLight::DangerousSituation indicate"<<std::endl;
+        std::cout<<"EmergencyVehicleWarning::DangerousSituation indicate"<<std::endl;
     }
     
     //auto denm = denmObject1.shared_ptr();

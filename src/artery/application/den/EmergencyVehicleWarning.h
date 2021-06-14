@@ -4,20 +4,22 @@
  * Licensed under GPLv2, see COPYING file for detailed license and warranty terms.
  */
 
-#ifndef ARTERY_EMERGENCYBRAKELIGHT_H_QRTLCYIY
-#define ARTERY_EMERGENCYBRAKELIGHT_H_QRTLCYIY
+#ifndef ARTERY_EMERGENCYVEHICLEWARNING_H_QRTLCYIY
+#define ARTERY_EMERGENCYVEHICLEWARNING_H_QRTLCYIY
 
 #include "artery/application/den/SuspendableUseCase.h"
 #include "artery/application/Sampling.h"
 #include <vanetza/units/acceleration.hpp>
 #include <vanetza/units/velocity.hpp>
+#include "artery/application/ItsG5Service.h"
+#include "artery/application/NetworkInterface.h"
 
 namespace artery
 {
 namespace den
 {
 
-class EmergencyBrakeLight : public SuspendableUseCase
+class EmergencyVehicleWarning : public SuspendableUseCase//, public ItsG5Service
 {
 public:
     void check() override;
@@ -43,4 +45,4 @@ private:
 } // namespace den
 } // namespace artery
 
-#endif /* ARTERY_EMERGENCYBRAKELIGHT_H_QRTLCYIY */
+#endif /* ARTERY_EMERGENCYVEHICLEWARNING_H_QRTLCYIY */

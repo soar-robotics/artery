@@ -6,6 +6,7 @@ add_library(core SHARED
     application/DenmObject.cc
     application/DenService.cc
     application/ExampleService.cc
+    application/ExampleDenService.cc
     application/GbcMockMessage.cc
     application/GbcMockService.cc
     application/InfrastructureMockMessage.cc
@@ -36,6 +37,7 @@ add_library(core SHARED
     application/VehicleMiddleware.cc
     application/XmlMultiChannelPolicy.cc
     application/den/EmergencyBrakeLight.cc
+    application/den/EmergencyVehicleWarning.cc
     application/den/ImpactReductionUseCase.cc
     application/den/Memory.cc
     application/den/SuspendableUseCase.cc
