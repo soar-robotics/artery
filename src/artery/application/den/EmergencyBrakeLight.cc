@@ -41,7 +41,7 @@ void EmergencyBrakeLight::check()
     mAccelerationSampler.feed(mVdp->acceleration(), mVdp->updated());
     if (!isDetectionBlocked() && checkConditions())
     {
-        std::cout<<"EmergencyBrakeLight::check() sent denm"<<std::endl;
+        //std::cout<<"EmergencyBrakeLight::check() sent denm"<<std::endl;
         blockDetection();
         auto message = createMessage();
         auto request = createRequest();
@@ -114,11 +114,11 @@ void EmergencyBrakeLight::indicate(const artery::DenmObject& denmObject1)
     auto cc = denmObject1.situation_cause_code();
     if (den::CauseCode::EmergencyVehicleApproaching == cc)
     {
-        std::cout<<"EmergencyBrakeLight::EmergencyVehicleApproaching indicate"<<std::endl;
+        //std::cout<<"EmergencyBrakeLight::EmergencyVehicleApproaching indicate"<<std::endl;
     }
     else if (den::CauseCode::DangerousSituation == cc)
     {
-        std::cout<<"EmergencyBrakeLight::DangerousSituation indicate"<<std::endl;
+        //std::cout<<"EmergencyBrakeLight::DangerousSituation indicate"<<std::endl;
     }
     
     //auto denm = denmObject1.shared_ptr();

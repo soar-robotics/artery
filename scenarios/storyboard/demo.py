@@ -7,6 +7,25 @@ import timeline
 print ("demo.py successfully imported...")
 
 def createStories(board):
+	# condition triggering after 10 simulated seconds
+	timeCondition = storyboard.TimeCondition(timeline.seconds(10))
+
+	# select police car
+	carSetCondition = storyboard.CarSetCondition("evw_veh")
+
+	# create signal effect
+	signalEffect = storyboard.SignalEffect("EVW")
+
+	# combine conditions
+	condition = storyboard.AndCondition(timeCondition, carSetCondition)
+
+	# create story by linking effect and conditions together
+	story = storyboard.Story(condition, [signalEffect])
+
+	# activate story
+	board.registerStory(story)
+
+	'''
 	# Create coordinates needed for the PolygonCondition
 	coord0 = storyboard.Coord(0.0, 0.0)
 	coord1 = storyboard.Coord(3000.0, 0.0)
@@ -20,10 +39,11 @@ def createStories(board):
 	cond1 = storyboard.TimeCondition(timeline.milliseconds(15000))
 
 	# Create CarSetCondition
-	cond2 = storyboard.CarSetCondition({"flow1.0", "flow0.1", "flow0.2"})
+	#cond2 = storyboard.CarSetCondition({"flow1.0", "flow0.1", "flow0.2"})
+	cond2 = storyboard.CarSetCondition({"host_veh"})
 
 	# Create SpeedEffect
-	effect0 = storyboard.SpeedEffect(2.44)
+	effect0 = storyboard.SpeedEffect(200.44)
 
 	# Create AndConditions
 	and0 = storyboard.AndCondition(cond0, cond1)
@@ -38,12 +58,12 @@ def createStories(board):
 
 	# Create Story 2
 	cond4 = storyboard.TimeCondition(timeline.seconds(50), timeline.seconds(60))
-	effect1 = storyboard.SpeedEffect(2.44)
+	effect1 = storyboard.SpeedEffect(10.44)
 	story1 = storyboard.Story(cond4, [effect1])
 
 	# Create Story 3, overlapping story0
 	cond5 = storyboard.TimeCondition(timeline.seconds(200), timeline.seconds(210))
-	cond6 = storyboard.CarSetCondition({"flow0.0", "flow0.1"})
+	cond6 = storyboard.CarSetCondition({"host_veh", "eebl_veh"})
 	and2 = storyboard.AndCondition(cond5, cond6)
 	effect2 = storyboard.SpeedEffect(0.1)
 	story2 = storyboard.Story(and2, [effect2])
@@ -57,9 +77,10 @@ def createStories(board):
 
 	# Register Stories at the Storyboard
 	board.registerStory(story)
-	board.registerStory(story1)
-	board.registerStory(story2)
-	board.registerStory(story3)
+	#board.registerStory(story1)
+	#board.registerStory(story2)
+	#board.registerStory(story3)
 
 	print("Stories loaded!")
+	'''
 

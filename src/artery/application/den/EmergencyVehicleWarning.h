@@ -24,7 +24,7 @@ class EmergencyVehicleWarning : public SuspendableUseCase//, public ItsG5Service
 public:
     void check() override;
     void indicate(const artery::DenmObject&) override;
-    void handleStoryboardTrigger(const StoryboardSignal&) override {};
+    void handleStoryboardTrigger(const StoryboardSignal&) override;
 
 protected:
     void initialize(int) override;
@@ -40,6 +40,7 @@ private:
     SkipEarlySampler<vanetza::units::Acceleration> mAccelerationSampler;
     vanetza::units::Velocity mSpeedThreshold;
     vanetza::units::Acceleration mDecelerationThreshold;
+    bool mEVWVehicle = false;
 };
 
 } // namespace den

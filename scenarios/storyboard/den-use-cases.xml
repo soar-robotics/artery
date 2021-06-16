@@ -2,7 +2,7 @@
 <usecases>
     <!--usecase type="artery.application.den.TrafficJamEndOfQueue" />
     <usecase type="artery.application.den.TrafficJamAhead" />
-    <usecase type="artery.application.den.ImpactReductionContainerExchange" />
-    <usecase type="artery.application.den.EmergencyBrakeLight" /-->
+    <usecase type="artery.application.den.ImpactReductionContainerExchange" /-->
+    <usecase type="artery.application.den.EmergencyBrakeLight" />
     <usecase type="artery.application.den.EmergencyVehicleWarning" />
 </usecases>

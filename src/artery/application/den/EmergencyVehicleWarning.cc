@@ -13,6 +13,10 @@
 #include <vanetza/units/acceleration.hpp>
 #include <vanetza/units/velocity.hpp>
 #include <algorithm>
+#include "artery/application/StoryboardSignal.h"
+
+//#include "artery/application/ItsG5Service.h"
+//#include "artery/application/ItsG5BaseService.h"
 
 namespace artery
 {
@@ -38,8 +42,9 @@ void EmergencyVehicleWarning::initialize(int stage)
 
 void EmergencyVehicleWarning::check()
 {
-    mAccelerationSampler.feed(mVdp->acceleration(), mVdp->updated());
-    //if (!isDetectionBlocked() && checkConditions())
+ 
+    //mAccelerationSampler.feed(mVdp->acceleration(), mVdp->updated());
+    if (mEVWVehicle)//!isDetectionBlocked() && checkConditions())
     {
         //blockDetection();
         auto message = createMessage();
@@ -105,12 +110,15 @@ vanetza::btp::DataRequestB EmergencyVehicleWarning::createRequest()
     destination.position.latitude = mVdp->latitude();
     destination.position.longitude = mVdp->longitude();
     request.gn.destination = destination;
+    auto head = mVdp->heading().value() * 5729.58;
+    //std::cout<<"EVW heading "<<head<<" Station ID "<<mVdp->getStationId()<<std::endl;
+    //std::cout<<"lat "<<mVdp->latitude().value()<<" lon "<<mVdp->longitude().value()<<std::endl;
 
     return request;
 }
-void EmergencyVehicleWarning::indicate(const artery::DenmObject& denmObject1)
+void EmergencyVehicleWarning::indicate(const artery::DenmObject& denm)
 {
-    auto cc = denmObject1.situation_cause_code();
+    /*auto cc = denm.situation_cause_code();
     if (den::CauseCode::EmergencyVehicleApproaching == cc)
     {
         std::cout<<"EmergencyVehicleWarning::EmergencyVehicleApproaching indicate"<<std::endl;
@@ -118,12 +126,50 @@ void EmergencyVehicleWarning::indicate(const artery::DenmObject& denmObject1)
     else if (den::CauseCode::DangerousSituation == cc)
     {
         std::cout<<"EmergencyVehicleWarning::DangerousSituation indicate"<<std::endl;
+    }*/
+    if (denm & CauseCode::EmergencyVehicleApproaching) {
+        const vanetza::asn1::Denm& asn1 = denm.asn1();
+        
+        auto head = mVdp->heading().value() * 5729.58;
+        std::cout<<"EVW heading "<<head<<" Station ID "<<mVdp->getStationId()<<std::endl;
+        std::cout<<asn1->header.stationID<<std::endl;
+        std::cout<<asn1->header.messageID<<std::endl;
+
+        std::cout<<"Cause code"<<asn1->denm.situation->eventType.causeCode<<std::endl;
+        std::cout<<"heading"<<asn1->denm.location->eventPositionHeading->headingValue<<std::endl;
+        
+       //std::cout<<"heading diff"<<asn1->denm.location->eventPositionHeading->headingValue/mVdp->heading().value()<<std::endl;
+        
+        //const traci::VehicleController* mVehicleController = nullptr;
+        //mVehicleController = &getFacilities().get_const<traci::VehicleController>();
+        //const std::string id = mVehicleController->getVehicleId();
+        //auto& vehicle = getFacilities().get_const<traci::VehicleController>();
+        //std::cout<<" cam sent "<<vehicle.getVehicleId()<<std::endl;
+        //std::cout<<"EmergencyVehicleWarning::EmergencyVehicleApproaching indicate_1 "<<id<<std::endl;
+        /*
+        if (asn1->denm.alacarte && asn1->denm.alacarte->impactReduction) {
+            auto& indication = asn1->denm.alacarte->impactReduction->requestResponseIndication;
+            if (indication == RequestResponseIndication_request) {
+                transmitMessage(RequestResponseIndication_response);
+            }
+        }
+        */
     }
-    
+    if (denm & CauseCode::DangerousSituation) {
+            const vanetza::asn1::Denm& asn1 = denm.asn1();
+            //std::cout<<"EmergencyVehicleWarning::DangerousSituation indicate_2"<<std::endl;
+        }
     //auto denm = denmObject1.shared_ptr();
     //denmObject1.asn1()->denm.situation;
 
     
+}
+void EmergencyVehicleWarning::handleStoryboardTrigger(const StoryboardSignal& signal)
+{
+    if (signal.getCause() == "EVW") {
+        mEVWVehicle = true;
+        std::cout<<"EVW set \n";
+    }
 }
 } // namespace den
 } // namespace artery
