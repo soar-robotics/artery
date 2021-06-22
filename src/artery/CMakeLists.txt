@@ -7,6 +7,7 @@ add_library(core SHARED
     application/DenService.cc
     application/ExampleService.cc
     application/ExampleDenService.cc
+    application/V2XUtils.cc
     application/GbcMockMessage.cc
     application/GbcMockService.cc
     application/InfrastructureMockMessage.cc

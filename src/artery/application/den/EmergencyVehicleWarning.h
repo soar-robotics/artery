@@ -14,6 +14,8 @@
 #include "artery/application/ItsG5Service.h"
 #include "artery/application/NetworkInterface.h"
 
+#include "artery/application/V2XUtils.h"
+
 namespace artery
 {
 namespace den
@@ -41,6 +43,10 @@ private:
     vanetza::units::Velocity mSpeedThreshold;
     vanetza::units::Acceleration mDecelerationThreshold;
     bool mEVWVehicle = false;
+    double prevDistance = 0.0;
+    double distance; 
+    V2XUtils *utils;
+    double hvHeading, evwHeading;
 };
 
 } // namespace den

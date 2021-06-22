@@ -15,6 +15,19 @@
 #include <algorithm>
 #include "artery/application/StoryboardSignal.h"
 
+
+#include <vanetza/units/area.hpp>
+#include <vanetza/geonet/areas.hpp>
+
+#include <vanetza/units/angle.hpp>
+#include <vanetza/units/velocity.hpp>
+#include <vanetza/units/angular_velocity.hpp>
+#include <vanetza/units/curvature.hpp>
+#include <cstdint>
+#include <map>
+
+#include <boost/units/systems/si/prefixes.hpp>
+#include <vanetza/asn1/denm.hpp>
 //#include "artery/application/ItsG5Service.h"
 //#include "artery/application/ItsG5BaseService.h"
 
@@ -24,7 +37,18 @@ namespace den
 {
 
 Define_Module(EmergencyVehicleWarning)
-
+const double anglePrecision = 10000000.0;
+const auto microdegree = vanetza::units::degree * boost::units::si::micro;
+const uint16_t HEADING_COMPENSATION_FOLLOW= 35;
+const uint16_t HEADING_COMPENSATION_OPPOSITE = 135;
+const uint16_t EEBL_LEVEL_1 = 400;
+const uint16_t EEBL_LEVEL_2 = 200;
+template<typename T, typename U>
+long round(const boost::units::quantity<T>& q, const U& u)
+{
+	boost::units::quantity<U> v { q };
+	return std::round(v.value());
+}
 void EmergencyVehicleWarning::initialize(int stage)
 {
     UseCase::initialize(stage);
@@ -37,6 +61,7 @@ void EmergencyVehicleWarning::initialize(int stage)
         mAccelerationSampler.setInterval(par("sampleInterval"));
         mSpeedThreshold = par("speedThreshold").doubleValue() * meter_per_second;
         mDecelerationThreshold = par("decelerationThreshold").doubleValue() * meter_per_second_squared;
+        utils = new V2XUtils();
     }
 }
 
@@ -86,7 +111,7 @@ vanetza::asn1::Denm EmergencyVehicleWarning::createMessage()
     msg->denm.situation = vanetza::asn1::allocate<SituationContainer_t>();
     msg->denm.situation->informationQuality = 1;
     msg->denm.situation->eventType.causeCode = CauseCodeType_emergencyVehicleApproaching;
-    msg->denm.situation->eventType.subCauseCode = DangerousSituationSubCauseCode_unavailable;
+    msg->denm.situation->eventType.subCauseCode = DangerousSituationSubCauseCode_emergencyElectronicBrakeEngaged;
 
     // TODO set road type in Location container
     // TODO set lane position in Alacarte container
@@ -110,7 +135,7 @@ vanetza::btp::DataRequestB EmergencyVehicleWarning::createRequest()
     destination.position.latitude = mVdp->latitude();
     destination.position.longitude = mVdp->longitude();
     request.gn.destination = destination;
-    auto head = mVdp->heading().value() * 5729.58;
+    //auto head = mVdp->heading().value() * 5729.58;
     //std::cout<<"EVW heading "<<head<<" Station ID "<<mVdp->getStationId()<<std::endl;
     //std::cout<<"lat "<<mVdp->latitude().value()<<" lon "<<mVdp->longitude().value()<<std::endl;
 
@@ -129,22 +154,55 @@ void EmergencyVehicleWarning::indicate(const artery::DenmObject& denm)
     }*/
     if (denm & CauseCode::EmergencyVehicleApproaching) {
         const vanetza::asn1::Denm& asn1 = denm.asn1();
-        
-        auto head = mVdp->heading().value() * 5729.58;
-        std::cout<<"EVW heading "<<head<<" Station ID "<<mVdp->getStationId()<<std::endl;
-        std::cout<<asn1->header.stationID<<std::endl;
-        std::cout<<asn1->header.messageID<<std::endl;
 
-        std::cout<<"Cause code"<<asn1->denm.situation->eventType.causeCode<<std::endl;
-        std::cout<<"heading"<<asn1->denm.location->eventPositionHeading->headingValue<<std::endl;
+        hvHeading = vanetza::units::GeoAngle { mVdp->heading() } / vanetza::units::degree;
+        std::cout<<"HV heading "<<hvHeading<<" Station ID "<<mVdp->getStationId()<<std::endl;
+        //std::cout<<asn1->header.stationID<<std::endl;
+        //std::cout<<asn1->header.messageID<<std::endl;
+
+        //std::cout<<"Cause code"<<asn1->denm.situation->eventType.causeCode<<std::endl;
+        //std::cout<<"heading"<<asn1->denm.location->eventPositionHeading->headingValue<<std::endl;
+        auto longitude = round(mVdp->longitude(), microdegree) * Longitude_oneMicrodegreeEast;
+	    auto latitude = round(mVdp->latitude(), microdegree) * Latitude_oneMicrodegreeNorth;
         
-       //std::cout<<"heading diff"<<asn1->denm.location->eventPositionHeading->headingValue/mVdp->heading().value()<<std::endl;
+        auto latit_1 = asn1->denm.management.eventPosition.latitude;
+        auto longi_1 = asn1->denm.management.eventPosition.longitude;
+    
+        evwHeading = asn1->denm.location->eventPositionHeading->headingValue / 10;
+        distance = utils->distance(static_cast<double>(latitude/anglePrecision), longitude/anglePrecision,
+        latit_1/anglePrecision, longi_1/anglePrecision);
+        std::cout<<"EVV heading "<<evwHeading<< "denm dist "<<distance<<std::endl;
         
-        //const traci::VehicleController* mVehicleController = nullptr;
-        //mVehicleController = &getFacilities().get_const<traci::VehicleController>();
-        //const std::string id = mVehicleController->getVehicleId();
-        //auto& vehicle = getFacilities().get_const<traci::VehicleController>();
-        //std::cout<<" cam sent "<<vehicle.getVehicleId()<<std::endl;
+        if(distance < prevDistance)
+        {
+            if(static_cast<uint16_t>(abs(hvHeading - evwHeading)) < HEADING_COMPENSATION_FOLLOW)
+            {
+                if(static_cast<uint16_t>(distance) < EEBL_LEVEL_2)
+                {
+                    std::cout<<"EmergencyVehicleWarning::Level_2 f"<<std::endl;
+                }
+                else if(static_cast<uint16_t>(distance) < EEBL_LEVEL_1)
+                {
+                    std::cout<<"EmergencyVehicleWarning::Level_1 f"<<std::endl;
+                }
+            }
+        }
+        else if(distance > prevDistance)
+        {
+            if(static_cast<uint16_t>(abs(hvHeading - evwHeading)) < HEADING_COMPENSATION_OPPOSITE)
+            {
+                if(static_cast<uint16_t>(distance) < EEBL_LEVEL_2)
+                {
+                    std::cout<<"EmergencyVehicleWarning::Level_2 o"<<std::endl;
+                }
+                else if(static_cast<uint16_t>(distance) < EEBL_LEVEL_1)
+                {
+                    std::cout<<"EmergencyVehicleWarning::Level_1 o"<<std::endl;
+                }
+            }
+        }
+
+
         //std::cout<<"EmergencyVehicleWarning::EmergencyVehicleApproaching indicate_1 "<<id<<std::endl;
         /*
         if (asn1->denm.alacarte && asn1->denm.alacarte->impactReduction) {
