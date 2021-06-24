@@ -47,6 +47,11 @@ private:
     double distance; 
     V2XUtils *utils;
     double hvHeading, evwHeading;
+    float X,Y;
+    float eX,eY;
+    float sX,sY;
+    stGeoMerc_t stGeoMerc;
+    float LineSegHd, LineSegLen;
 };
 
 } // namespace den

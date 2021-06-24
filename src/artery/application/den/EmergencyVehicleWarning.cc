@@ -62,6 +62,7 @@ void EmergencyVehicleWarning::initialize(int stage)
         mSpeedThreshold = par("speedThreshold").doubleValue() * meter_per_second;
         mDecelerationThreshold = par("decelerationThreshold").doubleValue() * meter_per_second_squared;
         utils = new V2XUtils();
+        //utils->init(stGeoMerc);
     }
 }
 
@@ -169,10 +170,22 @@ void EmergencyVehicleWarning::indicate(const artery::DenmObject& denm)
         auto longi_1 = asn1->denm.management.eventPosition.longitude;
     
         evwHeading = asn1->denm.location->eventPositionHeading->headingValue / 10;
-        distance = utils->distance(static_cast<double>(latitude/anglePrecision), longitude/anglePrecision,
+        distance = utils->distance(latitude/anglePrecision, longitude/anglePrecision,
         latit_1/anglePrecision, longi_1/anglePrecision);
         std::cout<<"EVV heading "<<evwHeading<< "denm dist "<<distance<<std::endl;
-        
+        utils->latLongtoXY(latitude/anglePrecision,longitude/anglePrecision,sX,sY);
+        std::cout<<"X "<<sX<<" Y "<<sY<<std::endl;
+        utils->latLongtoXY(latit_1/anglePrecision,longi_1/anglePrecision,eX,eY);
+        std::cout<<"X "<<eX<<" Y "<<eY<<std::endl;
+
+        /*utils->projLatLongtoXY(stGeoMerc, latitude/anglePrecision, longitude/anglePrecision, sX, sY);
+        std::cout<<"X "<<sX<<" Y "<<sY<<std::endl;
+        utils->projLatLongtoXY(stGeoMerc, latit_1/anglePrecision, longi_1/anglePrecision, eX, eY);
+        std::cout<<"X "<<eX<<" Y "<<eY<<std::endl;
+        */
+        utils->get_line_heading_length(eX, eY, sX, sY, LineSegHd, LineSegLen);
+        LineSegHd *= RAD_TO_DEG;
+        std::cout<<"LineSegHd "<<LineSegHd<<std::endl;
         if(distance < prevDistance)
         {
             if(static_cast<uint16_t>(abs(hvHeading - evwHeading)) < HEADING_COMPENSATION_FOLLOW)
