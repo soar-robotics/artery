@@ -4,9 +4,6 @@
 #include <cmath>
 #include <iostream>
 
-
-
-
 //namespace sr
 //{
 
@@ -24,10 +21,12 @@ double V2XUtils::distance(double lat1, double lon1,
     // distance between latitudes and longitudes
     double dLat = toRad(abs(lat2 - lat1));
     double dLon = toRad(abs(lon2 - lon1));
+#if 0
     std::cout<< "ddlat "<<lat1<<std::endl;
     std::cout<< "lon "<<lon1<<std::endl;
     std::cout<< "ddlat "<<lat2<<std::endl;
     std::cout<< "lon "<<lon2<<std::endl;
+#endif
     // convert to radians
     lat1 = toRad(lat1);
     lat2 = toRad(lat2);
