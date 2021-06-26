@@ -25,6 +25,25 @@ def createStories(board):
 	# activate story
 	board.registerStory(story)
 
+	cond1 = storyboard.TimeCondition(timeline.milliseconds(15000))
+
+	cond2 = storyboard.CarSetCondition({"eebl_veh"})
+	effect0 = storyboard.SpeedEffect(1.0)
+	#and0 = storyboard.AndCondition(cond0, cond1)
+	and1 = storyboard.AndCondition(cond1, cond2)
+	cond3 = storyboard.TimeCondition(timeline.seconds(40))
+	or0 = storyboard.OrCondition(cond3, and1)
+	story1 = storyboard.Story(or0, [effect0])
+
+	# Create Story
+	story = storyboard.Story(or0, [effect0])
+	cond4 = storyboard.TimeCondition(timeline.seconds(80), timeline.seconds(90))
+	cond5 = storyboard.CarSetCondition({"flow0.1"})
+	and2 = storyboard.AndCondition(cond4, cond5)
+	effect1 = storyboard.SpeedEffect(0.44)
+	story2= storyboard.Story(and2, [effect1])
+	#board.registerStory(story1)
+	board.registerStory(story2)
 	'''
 	# Create coordinates needed for the PolygonCondition
 	coord0 = storyboard.Coord(0.0, 0.0)

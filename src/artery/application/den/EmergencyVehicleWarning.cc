@@ -39,10 +39,11 @@ namespace den
 Define_Module(EmergencyVehicleWarning)
 const double anglePrecision = 10000000.0;
 const auto microdegree = vanetza::units::degree * boost::units::si::micro;
-const uint16_t HEADING_COMPENSATION_FOLLOW= 35;
-const uint16_t HEADING_COMPENSATION_OPPOSITE = 135;
-const uint16_t EEBL_LEVEL_1 = 400;
-const uint16_t EEBL_LEVEL_2 = 200;
+const uint16_t HEADING_COMPENSATION= 90;
+const uint16_t BEARING_COMPENSATION = 45;
+const uint16_t EVW_LEVEL_0 = 50;
+const uint16_t EVW_LEVEL_1 = 200;
+const uint16_t EVW_LEVEL_2 = 400;
 template<typename T, typename U>
 long round(const boost::units::quantity<T>& q, const U& u)
 {
@@ -172,10 +173,11 @@ void EmergencyVehicleWarning::indicate(const artery::DenmObject& denm)
         evwHeading = asn1->denm.location->eventPositionHeading->headingValue / 10;
         distance = utils->distance(latitude/anglePrecision, longitude/anglePrecision,
         latit_1/anglePrecision, longi_1/anglePrecision);
-        std::cout<<"EVV heading "<<evwHeading<< "denm dist "<<distance<<std::endl;
-        utils->latLongtoXY(latitude/anglePrecision,longitude/anglePrecision,sX,sY);
+        std::cout<<"EVV heading "<<evwHeading<< " host heading "<<hvHeading
+        <<" distance "<<distance<<std::endl;
+        utils->boostLatLongtoXY(latitude/anglePrecision,longitude/anglePrecision,sX,sY);
         //std::cout<<"X "<<sX<<" Y "<<sY<<std::endl;
-        utils->latLongtoXY(latit_1/anglePrecision,longi_1/anglePrecision,eX,eY);
+        utils->boostLatLongtoXY(latit_1/anglePrecision,longi_1/anglePrecision,eX,eY);
         //std::cout<<"X "<<eX<<" Y "<<eY<<std::endl;
 
         /*utils->projLatLongtoXY(stGeoMerc, latitude/anglePrecision, longitude/anglePrecision, sX, sY);
@@ -183,25 +185,67 @@ void EmergencyVehicleWarning::indicate(const artery::DenmObject& denm)
         utils->projLatLongtoXY(stGeoMerc, latit_1/anglePrecision, longi_1/anglePrecision, eX, eY);
         std::cout<<"X "<<eX<<" Y "<<eY<<std::endl;
         */
-        utils->get_line_heading_length(eX, eY, sX, sY, LineSegHd, LineSegLen);
-        LineSegHd *= RAD_TO_DEG;
-        std::cout<<"LineSegHd "<<LineSegHd;
-        std::cout<<" hvHeading "<<hvHeading;
-        std::cout<<" diff "<<static_cast<uint16_t>(abs(hvHeading - LineSegHd))<<std::endl;
+        auto cordAngle = utils->CoordinatesToAngle(latitude/anglePrecision, longitude/anglePrecision,
+                            latit_1/anglePrecision, longi_1/anglePrecision);
 
-        if(static_cast<uint16_t>(abs(hvHeading - LineSegHd)) > HEADING_COMPENSATION_OPPOSITE)
+        utils->get_line_heading_length(eX, eY, sX, sY, LineSegHd, LineSegLen);
+        std::cout<<"CoordinatesToAngle "
+        <<cordAngle<<" diff "<< static_cast<uint16_t>(abs(hvHeading - cordAngle))
+        <<" 180diff "<< static_cast<uint16_t>(abs(180 - hvHeading - cordAngle)) <<std::endl;
+        LineSegHd *= RAD_TO_DEG;
+        //std::cout<<"LineSegHd "<<LineSegHd;
+        //std::cout<<" hvHeading "<<hvHeading;
+        /*std::cout<<"head diff "<<static_cast<uint16_t>(abs(evwHeading- hvHeading))
+        <<" bear diff "<<static_cast<uint16_t>(abs(hvHeading - LineSegHd))
+        <<" dist " <<distance<<std::endl;*/
+        if(static_cast<uint16_t>(distance) < EVW_LEVEL_0 )//&& (distance > prevDistance))
+        {
+            std::cout<<"!!!!!!!!!!!!EmergencyVehicleWarning::Level_0 "<<std::endl;
+            mEVWFlag = true;
+        }
+        //if(static_cast<uint16_t>(abs(evwHeading- hvHeading)) < HEADING_COMPENSATION)
+        //{
+        if(static_cast<uint16_t>(abs(hvHeading - cordAngle)) < BEARING_COMPENSATION  &&
+            static_cast<int16_t>(cordAngle) > 0)
         {
             //i32Ret = 1;
-            if(static_cast<uint16_t>(distance) < EEBL_LEVEL_2)
+            if (!mEVWFlag)
             {
-                std::cout<<"EmergencyVehicleWarning::Level_2 f"<<std::endl;
+                if(static_cast<uint16_t>(distance) < EVW_LEVEL_1)
+                {
+                    std::cout<<"!!!!!!!!!!!!EmergencyVehicleWarning::Level_1 111111111"<<std::endl;
+                    mEVWFlag = true;
+                }
+                else //if(static_cast<uint16_t>(distance) < EEBL_LEVEL_1)
+                {
+                    std::cout<<"!!!!!!!!!!!!EmergencyVehicleWarning::Level_2 11111111111"<<std::endl;
+                    mEVWFlag = true;
+                }
             }
-            else //if(static_cast<uint16_t>(distance) < EEBL_LEVEL_1)
+
+
+        }
+        else if (static_cast<uint16_t>(abs(evwHeading- hvHeading)) < BEARING_COMPENSATION &&
+        static_cast<int16_t>(abs(hvHeading - cordAngle)) > 155  && 
+        static_cast<int16_t>(abs(hvHeading - cordAngle)) < 205)
+        {
+            std::cout<<"scast angle "<<static_cast<uint16_t>(cordAngle)<<"\n";
+            if (!mEVWFlag)
             {
-                std::cout<<"EmergencyVehicleWarning::Level_1 f"<<std::endl;
+                if(static_cast<uint16_t>(distance) < EVW_LEVEL_1)
+                {
+                    std::cout<<"!!!!!!!!!!!!EmergencyVehicleWarning::Level_1 2222222222222"<<std::endl;
+                }
+                else //if(static_cast<uint16_t>(distance) < EEBL_LEVEL_1)
+                {
+                    std::cout<<"!!!!!!!!!!!!EmergencyVehicleWarning::Level_2 2222222222222"<<std::endl;
+                }
             }
 
         }
+        mEVWFlag = false;
+        prevDistance = distance;
+        //}
         /*
         if(distance < prevDistance)
         {

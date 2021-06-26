@@ -52,6 +52,7 @@ private:
     float sX,sY;
     stGeoMerc_t stGeoMerc;
     float LineSegHd, LineSegLen;
+    bool mEVWFlag = false;
 };
 
 } // namespace den

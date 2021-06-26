@@ -37,6 +37,12 @@ public:
     void init(stGeoMerc_t & stGeoMerc);
     void get_line_heading_length(float f32X1, float f32Y1, \
 		float f32X2, float f32Y2, float & pf32Heading, float & pf32Length);
+    void boostLatLongtoXY(double lat, double lon, float & X, float &Y);
+    double degreeToRadian(double degree);// { return (degree * PI / 180); };
+	  double radianToDegree(double radian);// { return (radian * 180 / PI); };
+
+	  double CoordinatesToAngle(const double latitude1,const double longitude1,
+                              const double latitude2,const double longitude2);
     //stGeoMerc_t stGeoMerc;
 };
 
