@@ -63,7 +63,6 @@ void EmergencyVehicleWarning::initialize(int stage)
         mSpeedThreshold = par("speedThreshold").doubleValue() * meter_per_second;
         mDecelerationThreshold = par("decelerationThreshold").doubleValue() * meter_per_second_squared;
         utils = new V2XUtils();
-        //utils->init(stGeoMerc);
     }
 }
 
@@ -175,9 +174,9 @@ void EmergencyVehicleWarning::indicate(const artery::DenmObject& denm)
         latit_1/anglePrecision, longi_1/anglePrecision);
         std::cout<<"EVV heading "<<evwHeading<< " host heading "<<hvHeading
         <<" distance "<<distance<<std::endl;
-        utils->boostLatLongtoXY(latitude/anglePrecision,longitude/anglePrecision,sX,sY);
+        //utils->boostLatLongtoXY(latitude/anglePrecision,longitude/anglePrecision,sX,sY);
         //std::cout<<"X "<<sX<<" Y "<<sY<<std::endl;
-        utils->boostLatLongtoXY(latit_1/anglePrecision,longi_1/anglePrecision,eX,eY);
+        //utils->boostLatLongtoXY(latit_1/anglePrecision,longi_1/anglePrecision,eX,eY);
         //std::cout<<"X "<<eX<<" Y "<<eY<<std::endl;
 
         /*utils->projLatLongtoXY(stGeoMerc, latitude/anglePrecision, longitude/anglePrecision, sX, sY);
@@ -188,11 +187,11 @@ void EmergencyVehicleWarning::indicate(const artery::DenmObject& denm)
         auto cordAngle = utils->CoordinatesToAngle(latitude/anglePrecision, longitude/anglePrecision,
                             latit_1/anglePrecision, longi_1/anglePrecision);
 
-        utils->get_line_heading_length(eX, eY, sX, sY, LineSegHd, LineSegLen);
+        //utils->get_line_heading_length(eX, eY, sX, sY, LineSegHd, LineSegLen);
         std::cout<<"CoordinatesToAngle "
         <<cordAngle<<" diff "<< static_cast<uint16_t>(abs(hvHeading - cordAngle))
         <<" 180diff "<< static_cast<uint16_t>(abs(180 - hvHeading - cordAngle)) <<std::endl;
-        LineSegHd *= RAD_TO_DEG;
+        //LineSegHd *= RAD_TO_DEG;
         //std::cout<<"LineSegHd "<<LineSegHd;
         //std::cout<<" hvHeading "<<hvHeading;
         /*std::cout<<"head diff "<<static_cast<uint16_t>(abs(evwHeading- hvHeading))
@@ -244,7 +243,7 @@ void EmergencyVehicleWarning::indicate(const artery::DenmObject& denm)
 
         }
         mEVWFlag = false;
-        prevDistance = distance;
+        //prevDistance = distance;
         //}
         /*
         if(distance < prevDistance)
