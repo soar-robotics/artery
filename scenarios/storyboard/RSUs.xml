@@ -5,4 +5,7 @@
     <antenna direction="-0.7299320279417164"/>
     <antenna direction="-2.4013776376658527"/-->
   </rsu>
+  <rsu id="255265426" positionX="646775.23" positionY="5493153.97">
+    <!--antenna direction="-2.3871635201144072"/-->
+  </rsu>
 </RSUs>

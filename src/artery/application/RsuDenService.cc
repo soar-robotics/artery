@@ -6,7 +6,7 @@
 
 #include "artery/application/CaObject.h"
 #include "artery/application/LocalDynamicMap.h"
-#include "artery/application/RsuCaService.h"
+#include "artery/application/RsuDenService.h"
 #include "artery/application/Asn1PacketVisitor.h"
 #include "artery/application/MultiChannelPolicy.h"
 #include "artery/utility/Geometry.h"
@@ -22,10 +22,13 @@ namespace artery
 
 using namespace omnetpp;
 
-static const simsignal_t scSignalCamReceived = cComponent::registerSignal("CamReceived");
-static const simsignal_t scSignalCamSent = cComponent::registerSignal("CamSent");
+//static const simsignal_t scSignalCamReceived = cComponent::registerSignal("CamReceived");
+//static const simsignal_t scSignalCamSent = cComponent::registerSignal("CamSent");
+static const simsignal_t scSignaldenmReceived = cComponent::registerSignal("DenmReceived");
+static const simsignal_t scSignaldenmSent = cComponent::registerSignal("DenmSent");
+static const simsignal_t storyboardSignal = cComponent::registerSignal("StoryboardSignal");
 
-Define_Module(RsuCaService)
+Define_Module(RsuDenService)
 
 void RsuCaService::initialize()
 {
