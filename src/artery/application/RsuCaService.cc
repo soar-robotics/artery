@@ -115,7 +115,7 @@ void RsuCaService::sendCam()
 
     CaObject obj(createMessage());
     emit(scSignalCamSent, &obj);
-
+std::cout<<"rsu cam sent"<<std::endl;
     using CamByteBuffer = convertible::byte_buffer_impl<asn1::Cam>;
     std::unique_ptr<geonet::DownPacket> payload { new geonet::DownPacket() };
     std::unique_ptr<convertible::byte_buffer> buffer { new CamByteBuffer(obj.shared_ptr()) };

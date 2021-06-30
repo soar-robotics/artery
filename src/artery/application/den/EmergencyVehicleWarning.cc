@@ -172,8 +172,10 @@ void EmergencyVehicleWarning::indicate(const artery::DenmObject& denm)
         evwHeading = asn1->denm.location->eventPositionHeading->headingValue / 10;
         distance = utils->distance(latitude/anglePrecision, longitude/anglePrecision,
         latit_1/anglePrecision, longi_1/anglePrecision);
+        /*
         std::cout<<"EVV heading "<<evwHeading<< " host heading "<<hvHeading
         <<" distance "<<distance<<std::endl;
+        */
         //utils->boostLatLongtoXY(latitude/anglePrecision,longitude/anglePrecision,sX,sY);
         //std::cout<<"X "<<sX<<" Y "<<sY<<std::endl;
         //utils->boostLatLongtoXY(latit_1/anglePrecision,longi_1/anglePrecision,eX,eY);
@@ -188,9 +190,11 @@ void EmergencyVehicleWarning::indicate(const artery::DenmObject& denm)
                             latit_1/anglePrecision, longi_1/anglePrecision);
 
         //utils->get_line_heading_length(eX, eY, sX, sY, LineSegHd, LineSegLen);
+        /*
         std::cout<<"CoordinatesToAngle "
         <<cordAngle<<" diff "<< static_cast<uint16_t>(abs(hvHeading - cordAngle))
         <<" 180diff "<< static_cast<uint16_t>(abs(180 - hvHeading - cordAngle)) <<std::endl;
+        */
         //LineSegHd *= RAD_TO_DEG;
         //std::cout<<"LineSegHd "<<LineSegHd;
         //std::cout<<" hvHeading "<<hvHeading;
@@ -199,7 +203,7 @@ void EmergencyVehicleWarning::indicate(const artery::DenmObject& denm)
         <<" dist " <<distance<<std::endl;*/
         if(static_cast<uint16_t>(distance) < EVW_LEVEL_0 )//&& (distance > prevDistance))
         {
-            std::cout<<"!!!!!!!!!!!!EmergencyVehicleWarning::Level_0 "<<std::endl;
+            //std::cout<<"!!!!!!!!!!!!EmergencyVehicleWarning::Level_0 "<<std::endl;
             mEVWFlag = true;
         }
         //if(static_cast<uint16_t>(abs(evwHeading- hvHeading)) < HEADING_COMPENSATION)
@@ -212,12 +216,12 @@ void EmergencyVehicleWarning::indicate(const artery::DenmObject& denm)
             {
                 if(static_cast<uint16_t>(distance) < EVW_LEVEL_1)
                 {
-                    std::cout<<"!!!!!!!!!!!!EmergencyVehicleWarning::Level_1 111111111"<<std::endl;
+                    //std::cout<<"!!!!!!!!!!!!EmergencyVehicleWarning::Level_1 111111111"<<std::endl;
                     mEVWFlag = true;
                 }
                 else //if(static_cast<uint16_t>(distance) < EEBL_LEVEL_1)
                 {
-                    std::cout<<"!!!!!!!!!!!!EmergencyVehicleWarning::Level_2 11111111111"<<std::endl;
+                    //std::cout<<"!!!!!!!!!!!!EmergencyVehicleWarning::Level_2 11111111111"<<std::endl;
                     mEVWFlag = true;
                 }
             }
@@ -233,11 +237,11 @@ void EmergencyVehicleWarning::indicate(const artery::DenmObject& denm)
             {
                 if(static_cast<uint16_t>(distance) < EVW_LEVEL_1)
                 {
-                    std::cout<<"!!!!!!!!!!!!EmergencyVehicleWarning::Level_1 2222222222222"<<std::endl;
+                    //std::cout<<"!!!!!!!!!!!!EmergencyVehicleWarning::Level_1 2222222222222"<<std::endl;
                 }
                 else //if(static_cast<uint16_t>(distance) < EEBL_LEVEL_1)
                 {
-                    std::cout<<"!!!!!!!!!!!!EmergencyVehicleWarning::Level_2 2222222222222"<<std::endl;
+                    //std::cout<<"!!!!!!!!!!!!EmergencyVehicleWarning::Level_2 2222222222222"<<std::endl;
                 }
             }
 
