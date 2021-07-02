@@ -5,18 +5,19 @@
 
 package artery.application;
 
-simple RsuCaService like ItsG5Service
+simple RsuDenService like ItsG5Service
 {
     parameters:
-        @signal[CamReceived](type=CaObject);
-        @signal[CamSent](type=CaObject);
 
-        @statistic[reception](source=CamReceived;record=vector(camStationId)?,vector(camGenerationDeltaTime)?);
-        @statistic[transmission](source=CamSent;record=vector(camStationId)?,vector(camGenerationDeltaTime)?);
+        @class(RsuDenService);
+        @signal[DenmSent](type=artery::DenmObject);
+        @signal[DenmReceived](type=artery::DenmObject);
 
         // CAM generation interval
         double generationInterval @unit(s) = default(1.0s);
 
-        // announce protected communication zones (where vehicles need to reduce transmission power)
-        xml protectedCommunicationZones = default(xml("<zones/>"));
+        @statistic[reception](source=DenmReceived; record=count,vector(denmActionId)?,vector(denmCauseCode)?);
+        @statistic[transmission](source=DenmSent; record=count,vector(denmActionId)?,vector(denmCauseCode)?);
+
+        //xml useCases;
 }

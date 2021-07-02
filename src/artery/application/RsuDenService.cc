@@ -30,8 +30,9 @@ static const simsignal_t storyboardSignal = cComponent::registerSignal("Storyboa
 
 Define_Module(RsuDenService)
 
-void RsuCaService::initialize()
+void RsuDenService::initialize()
 {
+    
     ItsG5BaseService::initialize();
     mIdentity = &getFacilities().get_const<Identity>();
     mGeoPosition = &getFacilities().get_const<GeoPosition>();
@@ -40,19 +41,25 @@ void RsuCaService::initialize()
     mLocalDynamicMap = &getFacilities().get_mutable<LocalDynamicMap>();
 
     mGenerationInterval = par("generationInterval");
-    mLastCamTimestamp = -mGenerationInterval;
-    mProtectedCommunicationZones = parseProtectedCommunicationZones(par("protectedCommunicationZones").xmlValue());
+    mLastDENMTimestamp = -mGenerationInterval;
+
+    mMemory.reset(new artery::den::Memory(*mTimer));
+
+    subscribe(storyboardSignal);
+    //initUseCases();
+
+    /*mProtectedCommunicationZones = parseProtectedCommunicationZones(par("protectedCommunicationZones").xmlValue());
     if (mProtectedCommunicationZones.size() > 16) {
         throw cRuntimeError("CAMs can include at most 16 protected communication zones");
     } else {
         EV_INFO << "announcing " << mProtectedCommunicationZones.size() << " protected communication zones\n";
-    }
+    }*/
 
     // look up primary channel for CA
-    mPrimaryChannel = getFacilities().get_const<MultiChannelPolicy>().primaryChannel(vanetza::aid::CA);
+    //mPrimaryChannel = getFacilities().get_const<MultiChannelPolicy>().primaryChannel(vanetza::aid::CA);
 }
-
-auto RsuCaService::parseProtectedCommunicationZones(cXMLElement* zones_cfg) -> std::list<ProtectedCommunicationZone>
+/*
+auto RsuDenService::parseProtectedCommunicationZones(cXMLElement* zones_cfg) -> std::list<ProtectedCommunicationZone>
 {
     std::list<ProtectedCommunicationZone> zones;
 std::cout<<"ProtectedCommunicationZone\n";
@@ -85,53 +92,58 @@ std::cout<<"longitude "<<zone.longitude_deg<<std::endl;
 
     return zones;
 }
-
-void RsuCaService::trigger()
+*/
+void RsuDenService::trigger()
 {
+    
     Enter_Method("trigger");
-    if (simTime() - mLastCamTimestamp >= mGenerationInterval) {
-        sendCam();
+    if (simTime() - mLastDENMTimestamp >= mGenerationInterval) {
+        auto message = createMessage();
+        auto request = createRequest();
+        sendDENM(std::move(message), request);
     }
+    
 }
 
-void RsuCaService::indicate(const vanetza::btp::DataIndication& ind, std::unique_ptr<vanetza::UpPacket> packet)
+void RsuDenService::indicate(const vanetza::btp::DataIndication& ind, std::unique_ptr<vanetza::UpPacket> packet)
 {
-    Enter_Method("indicate");
+    
+    Asn1PacketVisitor<vanetza::asn1::Denm> visitor;
+    const vanetza::asn1::Denm* denm = boost::apply_visitor(visitor, *packet);
+    //ToDo
+    const auto egoStationID = 1;//getFacilities().get_const<VehicleDataProvider>().station_id();
 
-    Asn1PacketVisitor<vanetza::asn1::Cam> visitor;
-    const vanetza::asn1::Cam* cam = boost::apply_visitor(visitor, *packet);
-    if (cam && cam->validate()) {
-        CaObject obj = visitor.shared_wrapper;
-        emit(scSignalCamReceived, &obj);
-        std::cout<<"rsu cam received"<<std::endl;
-        mLocalDynamicMap->updateAwareness(obj);
+    if (denm && (*denm)->header.stationID != egoStationID) {
+        DenmObject obj = visitor.shared_wrapper;
+        //mMemory->received(obj);
+        //emit(scSignaldenmReceived, &obj);
+
+        for (auto use_case : mUseCases) {
+            //use_case->indicate(obj);
+        }
     }
+    
 }
 
-void RsuCaService::sendCam()
+void RsuDenService::sendDENM(vanetza::asn1::Denm&& message, vanetza::btp::DataRequestB& request)
 {
+    fillRequest(request);
+    DenmObject obj { std::move(message) };
+    emit(scSignaldenmSent, &obj);
+
     using namespace vanetza;
-    btp::DataRequestB request;
-    request.destination_port = btp::ports::CAM;
-    request.gn.its_aid = aid::CA;
-    request.gn.transport_type = geonet::TransportType::SHB;
-    request.gn.maximum_lifetime = geonet::Lifetime { geonet::Lifetime::Base::One_Second, 1 };
-    request.gn.traffic_class.tc_id(static_cast<unsigned>(dcc::Profile::DP2));
-    request.gn.communication_profile = geonet::CommunicationProfile::ITS_G5;
-
-    CaObject obj(createMessage());
-    emit(scSignalCamSent, &obj);
-//std::cout<<"rsu cam sent"<<std::endl;
-    using CamByteBuffer = convertible::byte_buffer_impl<asn1::Cam>;
-    std::unique_ptr<geonet::DownPacket> payload { new geonet::DownPacket() };
-    std::unique_ptr<convertible::byte_buffer> buffer { new CamByteBuffer(obj.shared_ptr()) };
-    payload->layer(OsiLayer::Application) = std::move(buffer);
+    using DenmConvertible = vanetza::convertible::byte_buffer_impl<vanetza::asn1::Denm>;
+    std::unique_ptr<geonet::DownPacket> payload { new geonet::DownPacket };
+    std::unique_ptr<vanetza::convertible::byte_buffer> denm { new DenmConvertible { obj.shared_ptr() } };
+    payload->layer(OsiLayer::Application) = vanetza::ByteBufferConvertible { std::move(denm) };
     this->request(request, std::move(payload));
 }
 
-vanetza::asn1::Cam RsuCaService::createMessage() const
+vanetza::asn1::Denm RsuDenService::createMessage() const
 {
-    vanetza::asn1::Cam message;
+    
+    vanetza::asn1::Denm message;
+    /*
     ItsPduHeader_t& header = (*message).header;
     header.protocolVersion = 2;
     header.messageID = ItsPduHeader__messageID_cam;
@@ -179,8 +191,42 @@ vanetza::asn1::Cam RsuCaService::createMessage() const
     if (!message.validate(error)) {
             throw cRuntimeError("Invalid RSU CAM: %s", error.c_str());
     }
-
+*/
     return message;
+    
 }
 
+void RsuDenService::fillRequest(vanetza::btp::DataRequestB& request)
+{
+    using namespace vanetza;
+    request.destination_port = btp::ports::DENM;
+    request.gn.its_aid = aid::DEN;
+    request.gn.transport_type = geonet::TransportType::GBC;
+    request.gn.communication_profile = geonet::CommunicationProfile::ITS_G5;
+}
+vanetza::btp::DataRequestB RsuDenService::createRequest()
+{
+    namespace geonet = vanetza::geonet;
+    using vanetza::units::si::seconds;
+    using vanetza::units::si::meter;
+
+    vanetza::btp::DataRequestB request;
+    request.gn.traffic_class.tc_id(0);
+    request.gn.maximum_lifetime = geonet::Lifetime { geonet::Lifetime::Base::One_Second, 2 };
+
+    geonet::Area destination;
+    geonet::Circle destination_shape;
+    destination_shape.r = 500.0 * meter;
+    destination.shape = destination_shape;
+    //destination.position.latitude = mVdp->latitude();
+    //destination.position.longitude = mVdp->longitude();
+    request.gn.destination = destination;
+
+    return request;
+}
+void RsuDenService::receiveSignal(omnetpp::cComponent*, omnetpp::simsignal_t, omnetpp::cObject*, omnetpp::cObject*)
+{
+    
+}
+        
 } // namespace artery
