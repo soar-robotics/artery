@@ -77,6 +77,7 @@ void RoadWorkWarning::check()
         auto message = createMessage();
         auto request = createRequest();
         mService->sendDenm(std::move(message), request);
+       
     }
 }
 
@@ -109,6 +110,13 @@ vanetza::asn1::Denm RoadWorkWarning::createMessage()
     msg->denm.management.validityDuration = vanetza::asn1::allocate<ValidityDuration_t>();
     *msg->denm.management.validityDuration = 2;
     msg->denm.management.stationType = StationType_unknown; // TODO retrieve type from SUMO
+    
+    msg->denm.management.eventPosition.longitude = 11029799 * Longitude_oneMicrodegreeEast;
+    msg->denm.management.eventPosition.latitude =  49573085 * Latitude_oneMicrodegreeNorth;
+    msg->denm.management.eventPosition.positionConfidenceEllipse.semiMajorOrientation = HeadingValue_unavailable;
+    msg->denm.management.eventPosition.positionConfidenceEllipse.semiMajorConfidence = SemiAxisLength_unavailable;
+    msg->denm.management.eventPosition.positionConfidenceEllipse.semiMinorConfidence = SemiAxisLength_unavailable;
+
 
     msg->denm.situation = vanetza::asn1::allocate<SituationContainer_t>();
     msg->denm.situation->informationQuality = 1;
@@ -121,6 +129,7 @@ vanetza::asn1::Denm RoadWorkWarning::createMessage()
     //std::cout<<"event heading "<<round(mVdp->heading(), decidegree)<<std::endl;
     // TODO set road type in Location container
     // TODO set lane position in Alacarte container
+    //std::cout<<"RWW DENM sent\n";
     return msg;
 }
 
@@ -139,8 +148,8 @@ vanetza::btp::DataRequestB RoadWorkWarning::createRequest()
     destination_shape.a = 500.0 * meter;
     destination_shape.b = 20.0 * meter;
     destination.shape = destination_shape;
-    destination.position.latitude = mVdp->latitude();
-    destination.position.longitude = mVdp->longitude();
+    destination.position.latitude  = 49573085 * vanetza::units::degree;//mVdp->latitude();
+    destination.position.longitude = 11029799 * vanetza::units::degree;//mVdp->longitude();
     request.gn.destination = destination;
     //auto head = mVdp->heading().value() * 5729.58;
     //std::cout<<"EVW heading "<<head<<" Station ID "<<mVdp->getStationId()<<std::endl;
@@ -150,7 +159,12 @@ vanetza::btp::DataRequestB RoadWorkWarning::createRequest()
 }
 void RoadWorkWarning::indicate(const artery::DenmObject& denm)
 {
+    //std::cout<<"denm\n";
+    if (denm & CauseCode::EmergencyVehicleApproaching) {
+       // std::cout<<"EVW denm\n";
+    }
     if (denm & CauseCode::Roadworks) {
+        //std::cout<<"RWW denm!!!!\n";
         const vanetza::asn1::Denm& asn1 = denm.asn1();
 
         hvHeading = vanetza::units::GeoAngle { mVdp->heading() } / vanetza::units::degree;
@@ -171,7 +185,8 @@ void RoadWorkWarning::indicate(const artery::DenmObject& denm)
         latit_1/anglePrecision, longi_1/anglePrecision);
         /*
         std::cout<<"EVV heading "<<evwHeading<< " host heading "<<hvHeading
-        <<" distance "<<distance<<std::endl;
+        <<" distance "<<distance<<"\nlati "<<latit_1<<" longi "<<longi_1
+        <<"\nlati0 "<<latitude<<" longi0 "<<longitude<<std::endl;
         */
         //utils->boostLatLongtoXY(latitude/anglePrecision,longitude/anglePrecision,sX,sY);
         //std::cout<<"X "<<sX<<" Y "<<sY<<std::endl;
@@ -187,20 +202,20 @@ void RoadWorkWarning::indicate(const artery::DenmObject& denm)
                             latit_1/anglePrecision, longi_1/anglePrecision);
 
         //utils->get_line_heading_length(eX, eY, sX, sY, LineSegHd, LineSegLen);
-        
+        /*
         std::cout<<"CoordinatesToAngle "
         <<cordAngle<<" diff "<< static_cast<uint16_t>(abs(hvHeading - cordAngle))
         <<" 180diff "<< static_cast<uint16_t>(abs(180 - hvHeading - cordAngle)) <<std::endl;
-        
+        */
         //LineSegHd *= RAD_TO_DEG;
         //std::cout<<"LineSegHd "<<LineSegHd;
         //std::cout<<" hvHeading "<<hvHeading;
         /*std::cout<<"head diff "<<static_cast<uint16_t>(abs(evwHeading- hvHeading))
         <<" bear diff "<<static_cast<uint16_t>(abs(hvHeading - LineSegHd))
         <<" dist " <<distance<<std::endl;*/
-        if(static_cast<uint16_t>(distance) < EVW_LEVEL_0 )//&& (distance > prevDistance))
+        if(static_cast<uint16_t>(distance) < EVW_LEVEL_0 && static_cast<int16_t>(cordAngle) > 0 )//&& (distance > prevDistance))
         {
-            //std::cout<<"!!!!!!!!!!!!RoadWorkWarning::Level_0 "<<std::endl;
+            std::cout<<"!!!!!!!!!!!!RoadWorkWarning::Level_0 "<<std::endl;
             mEVWFlag = true;
         }
         //if(static_cast<uint16_t>(abs(evwHeading- hvHeading)) < HEADING_COMPENSATION)
@@ -213,34 +228,16 @@ void RoadWorkWarning::indicate(const artery::DenmObject& denm)
             {
                 if(static_cast<uint16_t>(distance) < EVW_LEVEL_1)
                 {
-                    //std::cout<<"!!!!!!!!!!!!RoadWorkWarning::Level_1 111111111"<<std::endl;
+                    std::cout<<"!!!!!!!!!!!!RoadWorkWarning::Level_1 111111111"<<std::endl;
                     mEVWFlag = true;
                 }
                 else //if(static_cast<uint16_t>(distance) < EEBL_LEVEL_1)
                 {
-                    //std::cout<<"!!!!!!!!!!!!RoadWorkWarning::Level_2 11111111111"<<std::endl;
+                    std::cout<<"!!!!!!!!!!!!RoadWorkWarning::Level_2 11111111111"<<std::endl;
                     mEVWFlag = true;
                 }
             }
 
-
-        }
-        else if (static_cast<uint16_t>(abs(evwHeading- hvHeading)) < BEARING_COMPENSATION &&
-        static_cast<int16_t>(abs(hvHeading - cordAngle)) > 155  && 
-        static_cast<int16_t>(abs(hvHeading - cordAngle)) < 205)
-        {
-            std::cout<<"scast angle "<<static_cast<uint16_t>(cordAngle)<<"\n";
-            if (!mEVWFlag)
-            {
-                if(static_cast<uint16_t>(distance) < EVW_LEVEL_1)
-                {
-                    //std::cout<<"!!!!!!!!!!!!RoadWorkWarning::Level_1 2222222222222"<<std::endl;
-                }
-                else //if(static_cast<uint16_t>(distance) < EEBL_LEVEL_1)
-                {
-                    //std::cout<<"!!!!!!!!!!!!RoadWorkWarning::Level_2 2222222222222"<<std::endl;
-                }
-            }
 
         }
         mEVWFlag = false;

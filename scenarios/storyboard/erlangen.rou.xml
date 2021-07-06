@@ -21,10 +21,10 @@ Licensed under the Creative Commons Attribution-ShareAlike 2.0 license <http://c
    </vehicle-->
    <!--vehicle id="host_veh" depart="5.00" color="0,1,0" accel="7.6" maxSpeed="200">
    <route edges="-39539626 -5445204#2 -5445204#1 113939244#2 -126606716 23339459 30405358#1 85355912 85355911#0 85355911#1 30405356 5931612 30350450#0 30350450#1 30350450#2 4006702#0 4006702#1 4900043 4900041#1"/>
-   </vehicle-->
+   </vehicle>
    <vehicle id="evw_veh" accel="7.6" maxSpeed="200" depart="20.00" arrivalPos="max" color="1,0,0" guiShape="emergency">
    <route edges="-39539626 -5445204#2 -5445204#1 113939244#2 -126606716 23339459 30405358#1 85355912 85355911#0 85355911#1 30405356 5931612 30350450#0 30350450#1 30350450#2 4006702#0 4006702#1 4900043 4900041#1"/>
-   </vehicle>
+   </vehicle-->
    
 
 

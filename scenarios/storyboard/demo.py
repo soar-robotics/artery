@@ -7,10 +7,25 @@ import timeline
 print ("demo.py successfully imported...")
 
 def createStories(board):
+
+	#RWW
+	timeConditionRWW = storyboard.TimeCondition(timeline.seconds(1))
+	# select RWW car
+	carSetConditionRWW = storyboard.CarSetCondition("rww_veh")
+
+	# combine conditions
+	conditionRWW = storyboard.AndCondition(timeConditionRWW, carSetConditionRWW)
+	# create signal effect
+	signalEffect = storyboard.SignalEffect("RWW")
+
+	storyRWW = storyboard.Story(conditionRWW, [signalEffect])
+
+	board.registerStory(storyRWW)
+
 	# condition triggering after 10 simulated seconds
 	timeCondition = storyboard.TimeCondition(timeline.seconds(10))
 
-	# select police car
+	# select EVW car
 	carSetCondition = storyboard.CarSetCondition("evw_veh")
 
 	# create signal effect
@@ -25,15 +40,7 @@ def createStories(board):
 	# activate story
 	board.registerStory(story)
 
-	#RWW
-	carSetConditionRWW = storyboard.CarSetCondition("rww_veh")
-
-	# create signal effect
-	signalEffect = storyboard.SignalEffect("RWW")
-
-	storyRWW = storyboard.Story(carSetConditionRWW, [signalEffect])
-
-	board.registerStory(storyRWW)
+	
 
 	#EEBL
 	cond1 = storyboard.TimeCondition(timeline.milliseconds(15000))
