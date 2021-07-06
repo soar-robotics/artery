@@ -25,6 +25,17 @@ def createStories(board):
 	# activate story
 	board.registerStory(story)
 
+	#RWW
+	carSetConditionRWW = storyboard.CarSetCondition("rww_veh")
+
+	# create signal effect
+	signalEffect = storyboard.SignalEffect("RWW")
+
+	storyRWW = storyboard.Story(carSetConditionRWW, [signalEffect])
+
+	board.registerStory(storyRWW)
+
+	#EEBL
 	cond1 = storyboard.TimeCondition(timeline.milliseconds(15000))
 
 	cond2 = storyboard.CarSetCondition({"eebl_veh"})

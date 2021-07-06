@@ -40,6 +40,7 @@ add_library(core SHARED
     application/XmlMultiChannelPolicy.cc
     application/den/EmergencyBrakeLight.cc
     application/den/EmergencyVehicleWarning.cc
+    application/den/RoadWorkWarning.cc
     application/den/ImpactReductionUseCase.cc
     application/den/Memory.cc
     application/den/SuspendableUseCase.cc
