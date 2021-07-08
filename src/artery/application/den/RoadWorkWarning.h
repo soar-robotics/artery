@@ -42,16 +42,16 @@ private:
     SkipEarlySampler<vanetza::units::Acceleration> mAccelerationSampler;
     vanetza::units::Velocity mSpeedThreshold;
     vanetza::units::Acceleration mDecelerationThreshold;
-    bool mEVWVehicle = false;
+    bool mRWWVehicle = false;
     //double prevDistance = 0.0;
     double distance; 
     V2XUtils *utils;
-    double hvHeading, evwHeading;
+    double hvHeading, rwHeading;
     //float X,Y;
     //float eX,eY;
     //float sX,sY;
     //float LineSegHd, LineSegLen;
-    bool mEVWFlag = false;
+    bool mRWWFlag = false;
 };
 
 } // namespace den

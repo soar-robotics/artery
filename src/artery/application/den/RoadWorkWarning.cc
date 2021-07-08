@@ -40,11 +40,14 @@ Define_Module(RoadWorkWarning)
 const double anglePrecision = 10000000.0;
 const auto microdegree = vanetza::units::degree * boost::units::si::micro;
 static const auto decidegree = vanetza::units::degree * boost::units::si::deci;
-const uint16_t HEADING_COMPENSATION= 90;
+//const uint16_t HEADING_COMPENSATION= 90;
 const uint16_t BEARING_COMPENSATION = 45;
-const uint16_t EVW_LEVEL_0 = 50;
-const uint16_t EVW_LEVEL_1 = 200;
-const uint16_t EVW_LEVEL_2 = 400;
+const uint16_t RWW_LEVEL_0 = 50;
+const uint16_t RWW_LEVEL_1 = 200;
+const uint16_t RWW_LEVEL_2 = 400;
+const long RWW_LATITUDE = 49573085;
+const long RWW_LONGITUDE = 11029799;
+const long RWW_HEADING = 463;
 template<typename T, typename U>
 long round(const boost::units::quantity<T>& q, const U& u)
 {
@@ -71,7 +74,7 @@ void RoadWorkWarning::check()
 {
  
     //mAccelerationSampler.feed(mVdp->acceleration(), mVdp->updated());
-    if (mEVWVehicle)//!isDetectionBlocked() && checkConditions())
+    if (mRWWVehicle)//!isDetectionBlocked() && checkConditions())
     {
         //blockDetection();
         auto message = createMessage();
@@ -111,8 +114,8 @@ vanetza::asn1::Denm RoadWorkWarning::createMessage()
     *msg->denm.management.validityDuration = 2;
     msg->denm.management.stationType = StationType_unknown; // TODO retrieve type from SUMO
     
-    msg->denm.management.eventPosition.longitude = 11029799 * Longitude_oneMicrodegreeEast;
-    msg->denm.management.eventPosition.latitude =  49573085 * Latitude_oneMicrodegreeNorth;
+    msg->denm.management.eventPosition.longitude =  RWW_LONGITUDE * Longitude_oneMicrodegreeEast;
+    msg->denm.management.eventPosition.latitude = RWW_LATITUDE* Latitude_oneMicrodegreeNorth;
     msg->denm.management.eventPosition.positionConfidenceEllipse.semiMajorOrientation = HeadingValue_unavailable;
     msg->denm.management.eventPosition.positionConfidenceEllipse.semiMajorConfidence = SemiAxisLength_unavailable;
     msg->denm.management.eventPosition.positionConfidenceEllipse.semiMinorConfidence = SemiAxisLength_unavailable;
@@ -124,7 +127,7 @@ vanetza::asn1::Denm RoadWorkWarning::createMessage()
     msg->denm.situation->eventType.subCauseCode = DangerousSituationSubCauseCode_collisionRiskWarningEngaged;
 
     //message->denm.location->eventPositionHeading = vanetza::asn1::allocate<Heading>();
-    msg->denm.location->eventPositionHeading->headingValue = 463;//round(mVdp->heading(), decidegree);
+    msg->denm.location->eventPositionHeading->headingValue = RWW_HEADING;//round(mVdp->heading(), decidegree);
     msg->denm.location->eventPositionHeading->headingConfidence = HeadingConfidence_equalOrWithinOneDegree;
     //std::cout<<"event heading "<<round(mVdp->heading(), decidegree)<<std::endl;
     // TODO set road type in Location container
@@ -148,8 +151,8 @@ vanetza::btp::DataRequestB RoadWorkWarning::createRequest()
     destination_shape.a = 500.0 * meter;
     destination_shape.b = 20.0 * meter;
     destination.shape = destination_shape;
-    destination.position.latitude  = 49573085 * vanetza::units::degree;//mVdp->latitude();
-    destination.position.longitude = 11029799 * vanetza::units::degree;//mVdp->longitude();
+    destination.position.latitude  = RWW_LATITUDE * vanetza::units::degree;//mVdp->latitude();
+    destination.position.longitude = RWW_LONGITUDE * vanetza::units::degree;//mVdp->longitude();
     request.gn.destination = destination;
     //auto head = mVdp->heading().value() * 5729.58;
     //std::cout<<"EVW heading "<<head<<" Station ID "<<mVdp->getStationId()<<std::endl;
@@ -180,7 +183,7 @@ void RoadWorkWarning::indicate(const artery::DenmObject& denm)
         auto latit_1 = asn1->denm.management.eventPosition.latitude;
         auto longi_1 = asn1->denm.management.eventPosition.longitude;
     
-        evwHeading = asn1->denm.location->eventPositionHeading->headingValue / 10;
+        //rwHeading = asn1->denm.location->eventPositionHeading->headingValue / 10;
         distance = utils->distance(latitude/anglePrecision, longitude/anglePrecision,
         latit_1/anglePrecision, longi_1/anglePrecision);
         /*
@@ -213,10 +216,10 @@ void RoadWorkWarning::indicate(const artery::DenmObject& denm)
         /*std::cout<<"head diff "<<static_cast<uint16_t>(abs(evwHeading- hvHeading))
         <<" bear diff "<<static_cast<uint16_t>(abs(hvHeading - LineSegHd))
         <<" dist " <<distance<<std::endl;*/
-        if(static_cast<uint16_t>(distance) < EVW_LEVEL_0 && static_cast<int16_t>(cordAngle) > 0 )//&& (distance > prevDistance))
+        if(static_cast<uint16_t>(distance) < RWW_LEVEL_0 && static_cast<int16_t>(cordAngle) > 0 )//&& (distance > prevDistance))
         {
             std::cout<<"!!!!!!!!!!!!RoadWorkWarning::Level_0 "<<std::endl;
-            mEVWFlag = true;
+            mRWWFlag = true;
         }
         //if(static_cast<uint16_t>(abs(evwHeading- hvHeading)) < HEADING_COMPENSATION)
         //{
@@ -224,23 +227,23 @@ void RoadWorkWarning::indicate(const artery::DenmObject& denm)
             static_cast<int16_t>(cordAngle) > 0)
         {
             //i32Ret = 1;
-            if (!mEVWFlag)
+            if (!mRWWFlag)
             {
-                if(static_cast<uint16_t>(distance) < EVW_LEVEL_1)
+                if(static_cast<uint16_t>(distance) < RWW_LEVEL_1)
                 {
                     std::cout<<"!!!!!!!!!!!!RoadWorkWarning::Level_1 111111111"<<std::endl;
-                    mEVWFlag = true;
+                    mRWWFlag = true;
                 }
                 else //if(static_cast<uint16_t>(distance) < EEBL_LEVEL_1)
                 {
                     std::cout<<"!!!!!!!!!!!!RoadWorkWarning::Level_2 11111111111"<<std::endl;
-                    mEVWFlag = true;
+                    mRWWFlag = true;
                 }
             }
 
 
         }
-        mEVWFlag = false;
+        mRWWFlag = false;
     }
     if (denm & CauseCode::DangerousSituation) {
             const vanetza::asn1::Denm& asn1 = denm.asn1();
@@ -251,7 +254,7 @@ void RoadWorkWarning::indicate(const artery::DenmObject& denm)
 void RoadWorkWarning::handleStoryboardTrigger(const StoryboardSignal& signal)
 {
     if (signal.getCause() == "RWW") {
-        mEVWVehicle = true;
+        mRWWVehicle = true;
         std::cout<<"RWW set \n";
     }
 }
