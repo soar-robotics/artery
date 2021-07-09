@@ -19,7 +19,7 @@ def createStories(board):
 	#signalEffect = storyboard.SignalEffect("GEN")
 	
 	effectLane = storyboard.LaneChange(0,1000.0)
-	effectLaneMode = storyboard.LaneChangeMode(2730) #0xb6 = 182 ,512,256,1612
+	effectLaneMode = storyboard.LaneChangeMode(2730) #0xb6 = 182 ,512,256,1612,2730
 
 	storyGen = storyboard.Story(conditionGen, [effectLane, effectLaneMode])
 
@@ -44,7 +44,7 @@ def createStories(board):
 	timeCondition = storyboard.TimeCondition(timeline.seconds(10))
 
 	# select EVW car
-	carSetCondition = storyboard.CarSetCondition("evw_veh")
+	carSetCondition = storyboard.CarSetCondition("ambulance.0")
 
 	# create signal effect
 	signalEffect = storyboard.SignalEffect("EVW")
@@ -56,7 +56,7 @@ def createStories(board):
 	story = storyboard.Story(condition, [signalEffect])
 
 	# activate story
-	board.registerStory(story)
+	#board.registerStory(story)
 
 	
 

@@ -40,7 +40,7 @@ Define_Module(EmergencyVehicleWarning)
 const double anglePrecision = 10000000.0;
 const auto microdegree = vanetza::units::degree * boost::units::si::micro;
 const uint16_t HEADING_COMPENSATION= 90;
-const uint16_t BEARING_COMPENSATION = 45;
+const uint16_t BEARING_COMPENSATION = 30;
 const uint16_t EVW_LEVEL_0 = 50;
 const uint16_t EVW_LEVEL_1 = 200;
 const uint16_t EVW_LEVEL_2 = 400;
@@ -203,7 +203,7 @@ void EmergencyVehicleWarning::indicate(const artery::DenmObject& denm)
         <<" dist " <<distance<<std::endl;*/
         if(static_cast<uint16_t>(distance) < EVW_LEVEL_0 )//&& (distance > prevDistance))
         {
-            //std::cout<<"!!!!!!!!!!!!EmergencyVehicleWarning::Level_0 "<<std::endl;
+            std::cout<<"!!!!!!!!!!!!EmergencyVehicleWarning::Level_0 "<<std::endl;
             mEVWFlag = true;
         }
         //if(static_cast<uint16_t>(abs(evwHeading- hvHeading)) < HEADING_COMPENSATION)
@@ -216,12 +216,12 @@ void EmergencyVehicleWarning::indicate(const artery::DenmObject& denm)
             {
                 if(static_cast<uint16_t>(distance) < EVW_LEVEL_1)
                 {
-                    //std::cout<<"!!!!!!!!!!!!EmergencyVehicleWarning::Level_1 111111111"<<std::endl;
+                    std::cout<<"!!!!!!!!!!!!EmergencyVehicleWarning::Level_1 111111111"<<std::endl;
                     mEVWFlag = true;
                 }
                 else //if(static_cast<uint16_t>(distance) < EEBL_LEVEL_1)
                 {
-                    //std::cout<<"!!!!!!!!!!!!EmergencyVehicleWarning::Level_2 11111111111"<<std::endl;
+                    std::cout<<"!!!!!!!!!!!!EmergencyVehicleWarning::Level_2 11111111111"<<std::endl;
                     mEVWFlag = true;
                 }
             }
@@ -237,11 +237,11 @@ void EmergencyVehicleWarning::indicate(const artery::DenmObject& denm)
             {
                 if(static_cast<uint16_t>(distance) < EVW_LEVEL_1)
                 {
-                    //std::cout<<"!!!!!!!!!!!!EmergencyVehicleWarning::Level_1 2222222222222"<<std::endl;
+                    std::cout<<"!!!!!!!!!!!!EmergencyVehicleWarning::Level_1 2222222222222"<<std::endl;
                 }
                 else //if(static_cast<uint16_t>(distance) < EEBL_LEVEL_1)
                 {
-                    //std::cout<<"!!!!!!!!!!!!EmergencyVehicleWarning::Level_2 2222222222222"<<std::endl;
+                    std::cout<<"!!!!!!!!!!!!EmergencyVehicleWarning::Level_2 2222222222222"<<std::endl;
                 }
             }
 
