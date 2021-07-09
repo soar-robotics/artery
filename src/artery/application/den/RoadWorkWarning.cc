@@ -187,7 +187,7 @@ void RoadWorkWarning::indicate(const artery::DenmObject& denm)
         distance = utils->distance(latitude/anglePrecision, longitude/anglePrecision,
         latit_1/anglePrecision, longi_1/anglePrecision);
         /*
-        std::cout<<"EVV heading "<<evwHeading<< " host heading "<<hvHeading
+        std::cout<<"RWW heading "<<rwHeading<< " host heading "<<hvHeading
         <<" distance "<<distance<<"\nlati "<<latit_1<<" longi "<<longi_1
         <<"\nlati0 "<<latitude<<" longi0 "<<longitude<<std::endl;
         */
