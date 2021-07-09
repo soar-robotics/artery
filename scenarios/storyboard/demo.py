@@ -7,7 +7,25 @@ import timeline
 print ("demo.py successfully imported...")
 
 def createStories(board):
+	
+	#Generic Car
+	timeConditionGen = storyboard.TimeCondition(timeline.seconds(3))
+	# select RWW car
+	carSetConditionGen = storyboard.CarSetCondition("gen")
 
+	# combine conditions
+	conditionGen = storyboard.AndCondition(timeConditionGen, carSetConditionGen)
+	# create signal effect
+	#signalEffect = storyboard.SignalEffect("GEN")
+	
+	effectLane = storyboard.LaneChange(0,1000.0)
+	effectLaneMode = storyboard.LaneChangeMode(2730) #0xb6 = 182 ,512,256,1612
+
+	storyGen = storyboard.Story(conditionGen, [effectLane, effectLaneMode])
+
+	board.registerStory(storyGen)
+
+	
 	#RWW
 	timeConditionRWW = storyboard.TimeCondition(timeline.seconds(1))
 	# select RWW car

@@ -22,6 +22,8 @@
 #include <pybind11/operators.h>
 #include <pybind11/stl.h>
 
+#include "artery/storyboard/LaneChangeFactory.h"
+#include "artery/storyboard/LaneChangeModeFactory.h"
 namespace py = pybind11;
 
 namespace artery
@@ -100,6 +102,12 @@ PYBIND11_EMBEDDED_MODULE(storyboard, m) {
 
     py::class_<SpeedEffectFactory, std::shared_ptr<SpeedEffectFactory>, EffectFactory>(m, "SpeedEffect")
         .def(py::init<double>());
+
+    py::class_<LaneChangeFactory, std::shared_ptr<LaneChangeFactory>, EffectFactory>(m, "LaneChange")
+        .def(py::init<int, double>());
+
+    py::class_<LaneChangeModeFactory, std::shared_ptr<LaneChangeModeFactory>, EffectFactory>(m, "LaneChangeMode")
+        .def(py::init<int>());
 
     py::class_<StopEffectFactory, std::shared_ptr<StopEffectFactory>, EffectFactory>(m, "StopEffect")
         .def(py::init<>());

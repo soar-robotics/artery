@@ -1,6 +1,12 @@
 <additional>
 
-<parkingArea id="RoadWorks" lane="5445204#3_0" color="1,1,1" onRoad="true" startPos="40" endPos="70" roadsideCapacity="2" angle="0" length="30"/>
+<parkingArea id="RoadWorks" lane="-5445204#3_0" color="1,1,1" onRoad="true" startPos="270" endPos="330" roadsideCapacity="2" angle="0" length="30">
+  <!--space x="700" y="97"/>
+  <space x="720" y="120"/-->
+  <!--space x="873" y="613"/>
+  <space x="883" y="608"/>
+  <space x="893" y="603"/-->
+</parkingArea>
   <!--parkingArea id="parking_b" lane="b_0" startPos="6" endPos="40" friendlyPos="true" roadsideCapacity="6" angle="0" onRoad="false"/>
   <parkingArea id="parking_c" lane="c_0" startPos="6" endPos="40" friendlyPos="true" roadsideCapacity="6" angle="0" onRoad="false"/>
   <parkingArea id="parking_d" lane="d_0" startPos="6" endPos="40" friendlyPos="true" roadsideCapacity="6" angle="0" onRoad="false"/>
