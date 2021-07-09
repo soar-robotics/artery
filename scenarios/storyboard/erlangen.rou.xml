@@ -5,9 +5,9 @@ Copyright (C) 2008 Christoph Sommer <christoph.sommer@informatik.uni-erlangen.de
 Licensed under the Creative Commons Attribution-ShareAlike 2.0 license <http://creativecommons.org/licenses/by-sa/2.0/>
 -->
 <routes>
-   <vehicle id="rww_veh" depart="0.00">
-   <route edges="-5445204#3 39539626"/>
-   <stop parkingArea="RoadWorks" duration="20"/>
+   <vehicle id="rww_veh" depart="0.00" >
+   <route edges="-5445204#3"/>
+   <stop parkingArea="RoadWorks" duration="40"/>
    </vehicle>
    <vType id="vtype0" accel="2.6" decel="4.5" sigma="0.5" length="2.5" minGap="2.5" maxSpeed="14" color="1,1,0"/>
    <vType id="vtype1" accel="2.6" decel="4.5" sigma="0.5" length="2.5" minGap="2.5" maxSpeed="max" color="1,0,0" departSpeed="max"/>
@@ -17,8 +17,9 @@ Licensed under the Creative Commons Attribution-ShareAlike 2.0 license <http://c
    <flow id="flow0" type="vtype0" route="route0" begin="0" period="3" number="0"/>
    <flow id="flow1" type="vtype1" route="route1" begin="0" depart="2.00" period="3" number="0"/>
    
-   <vehicle id="gen" vClass="truck" depart="2.00" color="1,1,1" impatience="1.0" laneChangeModel= "SL2015" route="route1" guiShape="motorcycle">
+   <vehicle id="gen" vClass="truck" depart="2.00" color="1,1,1" impatience="1.0" laneChangeModel= "SL2015" maxSpeedLat="10" sigma="10.5" route="route1" guiShape="motorcycle">
    <!--route edges="-5445204#3 39539626"/>
+   departPos="300" arrivalPos="300"
    <restriction vClass="emergency" speed="30.89"/>
    <param key="has.bluelight.device" value="true"/-->
    </vehicle>

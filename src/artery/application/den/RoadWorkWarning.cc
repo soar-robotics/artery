@@ -208,7 +208,7 @@ void RoadWorkWarning::indicate(const artery::DenmObject& denm)
         /*
         std::cout<<"CoordinatesToAngle "
         <<cordAngle<<" diff "<< static_cast<uint16_t>(abs(hvHeading - cordAngle))
-        <<" 180diff "<< static_cast<uint16_t>(abs(180 - hvHeading - cordAngle)) <<std::endl;
+        <<std::endl;
         */
         //LineSegHd *= RAD_TO_DEG;
         //std::cout<<"LineSegHd "<<LineSegHd;
@@ -218,7 +218,7 @@ void RoadWorkWarning::indicate(const artery::DenmObject& denm)
         <<" dist " <<distance<<std::endl;*/
         if(static_cast<uint16_t>(distance) < RWW_LEVEL_0 && static_cast<int16_t>(cordAngle) > 0 )//&& (distance > prevDistance))
         {
-            std::cout<<"!!!!!!!!!!!!RoadWorkWarning::Level_0 "<<std::endl;
+            std::cout<<"!!!!!!!!!!!!RoadWorkWarning::Level_0 !!!!!!!!!!!!!!!!!!!!00 "<<std::endl;
             mRWWFlag = true;
         }
         //if(static_cast<uint16_t>(abs(evwHeading- hvHeading)) < HEADING_COMPENSATION)
