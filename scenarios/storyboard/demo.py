@@ -56,7 +56,7 @@ def createStories(board):
 	story = storyboard.Story(condition, [signalEffect])
 
 	# activate story
-	#board.registerStory(story)
+	board.registerStory(story)
 
 	
 

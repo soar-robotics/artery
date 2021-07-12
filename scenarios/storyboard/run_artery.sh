@@ -17,5 +17,6 @@ done
 if [ "$RUNALL" = true ] ; then
     $OPP_RUNALL $J $B $OPP_RUN -n $NED_FOLDERS $LIBRARIES $@
 else
-    $OPP_RUN -n $NED_FOLDERS $LIBRARIES $@
+    $OPP_RUN -r 0 -u Cmdenv -c General -n $NED_FOLDERS $LIBRARIES $@
+    #--debug-on-errors=false
 fi

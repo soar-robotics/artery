@@ -75,8 +75,8 @@ void V2XUtils::boostLatLongtoXY(double lat, double lon, float & x, float & y)
     std::cout<< " lon "<<longitude2<<std::endl;
 #endif
 	const auto longitudeDifferenceRadians = (longitude2 - longitude1) * SR_DEG_TO_RAD;
-	auto latitude1Radian = (latitude1) * SR_DEG_TO_RAD,
-		latitude2Radian = (latitude2) * SR_DEG_TO_RAD;
+	auto latitude1Radian = (latitude1) * SR_DEG_TO_RAD;
+	auto latitude2Radian = (latitude2) * SR_DEG_TO_RAD;
 
 	const auto x = std::cos(latitude1Radian) * std::sin(latitude2Radian) -
 					std::sin(latitude1Radian) * std::cos(latitude2Radian) *
