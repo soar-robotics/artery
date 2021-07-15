@@ -28,10 +28,10 @@ double V2XUtils::distance(double lat1, double lon1,
     double dLat = (abs(lat2 - lat1)) * SR_DEG_TO_RAD;
     double dLon = (abs(lon2 - lon1)) * SR_DEG_TO_RAD;
 #if 0
-    std::cout<< "ddlat "<<lat1;
-    std::cout<< " lon "<<lon1<<std::endl;
-    std::cout<< "ddlat "<<lat2;
-    std::cout<< " lon "<<lon2<<std::endl;
+    std::cout<< "ddlat0 "<< std::fixed << std::setprecision(6)<<lat1;
+    std::cout<< " lon0 "<< std::fixed << std::setprecision(6)<<lon1<<std::endl;
+    std::cout<< "ddlat1 "<< std::fixed << std::setprecision(6)<<lat2;
+    std::cout<< " lon1 "<< std::fixed << std::setprecision(6)<<lon2<<std::endl;
 #endif
     // convert to radians
     lat1 = (lat1) * SR_DEG_TO_RAD;
@@ -69,10 +69,10 @@ void V2XUtils::boostLatLongtoXY(double lat, double lon, float & x, float & y)
 										const double latitude2,const double longitude2)
 	{
 #if 0
-    std::cout<< "ddlat "<<latitude1;
-    std::cout<< " lon "<<longitude1<<std::endl;
-    std::cout<< "ddlat "<<latitude2;
-    std::cout<< " lon "<<longitude2<<std::endl;
+    std::cout<< "cclat0 "<<latitude1;
+    std::cout<< " lon0 "<<longitude1<<std::endl;
+    std::cout<< "cclat1 "<<latitude2;
+    std::cout<< " lon2 "<<longitude2<<std::endl;
 #endif
 	const auto longitudeDifferenceRadians = (longitude2 - longitude1) * SR_DEG_TO_RAD;
 	auto latitude1Radian = (latitude1) * SR_DEG_TO_RAD;

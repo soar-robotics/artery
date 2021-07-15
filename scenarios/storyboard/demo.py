@@ -23,11 +23,11 @@ def createStories(board):
 
 	storyGen = storyboard.Story(conditionGen, [effectLane, effectLaneMode])
 
-	board.registerStory(storyGen)
+	#board.registerStory(storyGen)
 
 	
 	#RWW
-	timeConditionRWW = storyboard.TimeCondition(timeline.seconds(1))
+	timeConditionRWW = storyboard.TimeCondition(timeline.seconds(31))
 	# select RWW car
 	carSetConditionRWW = storyboard.CarSetCondition("rww_veh")
 
@@ -56,7 +56,7 @@ def createStories(board):
 	story = storyboard.Story(condition, [signalEffect])
 
 	# activate story
-	#board.registerStory(story)
+	board.registerStory(story)
 
 	
 
@@ -79,7 +79,7 @@ def createStories(board):
 	effect1 = storyboard.SpeedEffect(0.44)
 	story2= storyboard.Story(and2, [effect1])
 	#board.registerStory(story1)
-	board.registerStory(story2)
+	#board.registerStory(story2)
 	'''
 	# Create coordinates needed for the PolygonCondition
 	coord0 = storyboard.Coord(0.0, 0.0)

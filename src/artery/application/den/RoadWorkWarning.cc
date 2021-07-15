@@ -45,9 +45,9 @@ const uint16_t BEARING_COMPENSATION = 45;
 const uint16_t RWW_LEVEL_0 = 50;
 const uint16_t RWW_LEVEL_1 = 200;
 const uint16_t RWW_LEVEL_2 = 400;
-const long RWW_LATITUDE = 49573085;
-const long RWW_LONGITUDE = 11029799;
-const long RWW_HEADING = 463;
+const long RWW_LATITUDE = 17594071;
+const long RWW_LONGITUDE = 78125249;
+const long RWW_HEADING = 180;
 template<typename T, typename U>
 long round(const boost::units::quantity<T>& q, const U& u)
 {
@@ -163,9 +163,6 @@ vanetza::btp::DataRequestB RoadWorkWarning::createRequest()
 void RoadWorkWarning::indicate(const artery::DenmObject& denm)
 {
     //std::cout<<"denm\n";
-    if (denm & CauseCode::EmergencyVehicleApproaching) {
-       // std::cout<<"EVW denm\n";
-    }
     if (denm & CauseCode::Roadworks) {
         //std::cout<<"RWW denm!!!!\n";
         const vanetza::asn1::Denm& asn1 = denm.asn1();
