@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<services>
+    <service type="ForwardCollisionWarningStoryboard">
+        <listener port="8001" />
+        <filters><name pattern="evw_veh" /></filters>
+    </service>
+    <!--service type="ClearLaneService">
+        <listener port="8001" />
+        <filters><name pattern="evw_veh" match="inverse" /></filters>
+    </service-->
+    <service type="artery.application.DenService">
+		<listener port="2002" />
+	</service>
+</services>
