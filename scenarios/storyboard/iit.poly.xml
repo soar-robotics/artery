@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- generated on 2021-07-08 11:54:52 by Eclipse SUMO polyconvert Version 1.9.2
+<configuration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/polyconvertConfiguration.xsd">
+
+    <input>
+        <visum-files value="iit.rou.xml"/>
+    </input>
+
+    <output>
+        <output-file value="iit.poly.xml"/>
+    </output>
+
+    <projection>
+        <proj.scale value="1"/>
+    </projection>
+
+</configuration>
+-->
+
+<additional xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/additional_file.xsd">
+</additional>

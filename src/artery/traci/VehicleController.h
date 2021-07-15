@@ -44,6 +44,8 @@ public:
     Length getWidth() const;
 
     void changeTarget(const std::string& edge);
+    void changeLane(int laneIndex, double duration);
+    void setLaneChangeMode(int mode);
 
     std::shared_ptr<traci::API> getTraCI() { return m_traci; }
     std::shared_ptr<const traci::API> getTraCI() const { return m_traci; }

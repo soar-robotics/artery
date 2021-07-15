@@ -52,11 +52,13 @@ void RsuCaService::initialize()
 auto RsuCaService::parseProtectedCommunicationZones(cXMLElement* zones_cfg) -> std::list<ProtectedCommunicationZone>
 {
     std::list<ProtectedCommunicationZone> zones;
-
+std::cout<<"ProtectedCommunicationZone\n";
     for (cXMLElement* zone_cfg : zones_cfg->getChildrenByTagName("zone")) {
         ProtectedCommunicationZone zone;
         zone.latitude_deg = boost::lexical_cast<double>(zone_cfg->getAttribute("latitude"));
+std::cout<<"latitude "<<zone.latitude_deg<<std::endl;
         zone.longitude_deg = boost::lexical_cast<double>(zone_cfg->getAttribute("longitude"));
+std::cout<<"longitude "<<zone.longitude_deg<<std::endl;
         const char* radius_attr = zone_cfg->getAttribute("radius");
         if (radius_attr) {
             zone.radius_m = boost::lexical_cast<unsigned>(radius_attr);
@@ -98,6 +100,7 @@ void RsuCaService::indicate(const vanetza::btp::DataIndication& ind, std::unique
     if (cam && cam->validate()) {
         CaObject obj = visitor.shared_wrapper;
         emit(scSignalCamReceived, &obj);
+        std::cout<<"rsu cam received"<<std::endl;
         mLocalDynamicMap->updateAwareness(obj);
     }
 }
@@ -115,7 +118,7 @@ void RsuCaService::sendCam()
 
     CaObject obj(createMessage());
     emit(scSignalCamSent, &obj);
-
+//std::cout<<"rsu cam sent"<<std::endl;
     using CamByteBuffer = convertible::byte_buffer_impl<asn1::Cam>;
     std::unique_ptr<geonet::DownPacket> payload { new geonet::DownPacket() };
     std::unique_ptr<convertible::byte_buffer> buffer { new CamByteBuffer(obj.shared_ptr()) };

@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- generated on 2021-07-08 10:38:21 by Eclipse SUMO netedit Version 1.9.2
+<configuration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/netconvertConfiguration.xsd">
+
+    <input>
+        <sumo-net-file value="/home/nazlican/soar-robotics/IIT.net.xml"/>
+    </input>
+
+    <output>
+        <output-file value="/home/nazlican/soar-robotics/iit.net.xml"/>
+    </output>
+
+    <processing>
+        <geometry.min-radius.fix.railways value="false"/>
+        <geometry.max-grade.fix value="false"/>
+        <offset.disable-normalization value="true"/>
+        <lefthand value="false"/>
+    </processing>
+
+    <junctions>
+        <no-turnarounds value="true"/>
+        <junctions.corner-detail value="5"/>
+        <junctions.limit-turn-speed value="5.5"/>
+        <rectangular-lane-cut value="false"/>
+    </junctions>
+
+    <pedestrian>
+        <walkingareas value="false"/>
+    </pedestrian>
+
+    <netedit>
+        <route-files value="/home/nazlican/soar-robotics/iit-vehicles.rou.xml"/>
+    </netedit>
+
+    <report>
+        <aggregate-warnings value="5"/>
+    </report>
+
+</configuration>
+-->
+
+<routes xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/routes_file.xsd">
+    <route edges="343941711#0" color="yellow" id="route_0"/>
+    <route edges="343941711#0" color="yellow" id="route_1"/>
+    <route edges="-776593867#3" color="yellow" id="route_10"/>
+    <route edges="776593867#2" color="yellow" id="route_11"/>
+    <route edges="-776593867#2" color="yellow" id="route_12"/>
+    <route edges="776593867#2" color="yellow" id="route_13"/>
+    <route edges="-776593867#2" color="yellow" id="route_14"/>
+    <route edges="592101614" color="yellow" id="route_15"/>
+    <route edges="-592101614" color="yellow" id="route_16"/>
+    <route edges="-776593867#0" color="yellow" id="route_17"/>
+    <route edges="776593867#0" color="yellow" id="route_18"/>
+    <route edges="776593857#0" color="yellow" id="route_19"/>
+    <route edges="219261326#6" color="yellow" id="route_2"/>
+    <route edges="776593855#2" color="yellow" id="route_20"/>
+    <route edges="776593855#1" color="yellow" id="route_21"/>
+    <route edges="776593855#0" color="yellow" id="route_22"/>
+    <route edges="592101598#4" color="yellow" id="route_23"/>
+    <route edges="-592101598#4" color="yellow" id="route_24"/>
+    <route edges="592101598#3" color="yellow" id="route_25"/>
+    <route edges="-592101610#1" color="yellow" id="route_26"/>
+    <route edges="592101610#1" color="yellow" id="route_27"/>
+    <route edges="-592101610#0" color="yellow" id="route_28"/>
+    <route edges="592101610#0" color="yellow" id="route_29"/>
+    <route edges="343941711#1" color="yellow" id="route_3"/>
+    <route edges="592101602#3" color="yellow" id="route_30"/>
+    <route edges="-592101602#3" color="yellow" id="route_31"/>
+    <route edges="-592101602#1" color="yellow" id="route_32"/>
+    <route edges="592101602#1" color="yellow" id="route_33"/>
+    <route edges="-592101602#0" color="yellow" id="route_34"/>
+    <route edges="592101602#0" color="yellow" id="route_35"/>
+    <route edges="-592101598#2" color="yellow" id="route_36"/>
+    <route edges="592101598#2" color="yellow" id="route_37"/>
+    <route edges="-592101598#3" color="yellow" id="route_38"/>
+    <route edges="-592101598#1" color="yellow" id="route_39"/>
+    <route edges="219261326#5" color="yellow" id="route_4"/>
+    <route edges="592101598#1" color="yellow" id="route_40"/>
+    <route edges="-592101598#0" color="yellow" id="route_41"/>
+    <route edges="592101598#0" color="yellow" id="route_42"/>
+    <route edges="-592101615" color="yellow" id="route_43"/>
+    <route edges="592101615" color="yellow" id="route_44"/>
+    <route edges="592101604#1" color="yellow" id="route_45"/>
+    <route edges="-592101604#1" color="yellow" id="route_46"/>
+    <route edges="-592101606#0" color="yellow" id="route_47"/>
+    <route edges="592101606#0" color="yellow" id="route_48"/>
+    <route edges="-592101606#1" color="yellow" id="route_49"/>
+    <route edges="-776593867#5" color="yellow" id="route_5"/>
+    <route edges="592101606#1" color="yellow" id="route_50"/>
+    <route edges="-592101606#2" color="yellow" id="route_51"/>
+    <route edges="592101606#2" color="yellow" id="route_52"/>
+    <route edges="-592101604#0" color="yellow" id="route_53"/>
+    <route edges="592101604#0" color="yellow" id="route_54"/>
+    <route edges="-592101623" color="yellow" id="route_55"/>
+    <route edges="592101623" color="yellow" id="route_56"/>
+    <route edges="219261326#4" color="yellow" id="route_57"/>
+    <route edges="776593867#5" color="yellow" id="route_6"/>
+    <route edges="-776593867#4" color="yellow" id="route_7"/>
+    <route edges="776593867#4" color="yellow" id="route_8"/>
+    <route edges="776593867#3" color="yellow" id="route_9"/>
+    <trip id="vehicle_0" depart="0.00" from="343941711#0" to="343941711#0" via="219261326#6"/>
+    <trip id="vehicle_1" depart="0.00" from="343941711#0" to="343941711#0" via="219261326#6"/>
+</routes>

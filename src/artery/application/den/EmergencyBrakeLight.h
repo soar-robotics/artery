@@ -21,7 +21,7 @@ class EmergencyBrakeLight : public SuspendableUseCase
 {
 public:
     void check() override;
-    void indicate(const artery::DenmObject&) override {};
+    void indicate(const artery::DenmObject&) override;
     void handleStoryboardTrigger(const StoryboardSignal&) override {};
 
 protected:

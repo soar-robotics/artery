@@ -103,5 +103,13 @@ void VehicleController::changeTarget(const std::string& edge)
 {
     m_traci->vehicle.changeTarget(m_cache->getId(), edge);
 }
+void VehicleController::changeLane(int laneIndex, double duration)
+{
+    m_traci->vehicle.changeLane(m_cache->getId(), laneIndex, duration);
+}
+void VehicleController::setLaneChangeMode( int mode)
+{
+    m_traci->vehicle.setLaneChangeMode(m_cache->getId(), mode);
+}
 
 } // namespace traci

@@ -1,0 +1,11 @@
+<RSUs>
+  <!--This file was generated with 'RSUGenerator.py -n erlangen.net.xml -o RSUs.xml'-->
+  <rsu id="cluster_269721025_411050745" positionX="646774.49" positionY="5493152.19">
+    <!--antenna direction="0.7544291334753862"/>
+    <antenna direction="-0.7299320279417164"/>
+    <antenna direction="-2.4013776376658527"/-->
+  </rsu>
+  <rsu id="255265426" positionX="646775.23" positionY="5493153.97">
+    <!--antenna direction="-2.3871635201144072"/-->
+  </rsu>
+</RSUs>

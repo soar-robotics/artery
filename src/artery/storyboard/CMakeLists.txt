@@ -8,6 +8,10 @@ add_artery_feature(storyboard
     EffectStack.cc
     EmergencyStopEffect.cc
     GenericEffectFactory.cc
+    LaneChange.cc
+    LaneChangeFactory.cc
+    LaneChangeMode.cc
+    LaneChangeModeFactory.cc
     LikelihoodCondition.cc
     LimitCondition.cc
     OrCondition.cc

@@ -20,6 +20,9 @@
 #include <vanetza/units/velocity.hpp>
 #include <algorithm>
 #include <numeric>
+#include <cassert>
+#include <boost/optional.hpp>
+//#include <boost/optional/optional_io.hpp>
 
 static const auto hour = 3600.0 * boost::units::si::seconds;
 static const auto km_per_hour = boost::units::si::kilo * boost::units::si::meter / hour;
@@ -52,6 +55,7 @@ void TrafficJamEndOfQueue::check()
     mVelocitySampler.feed(mVdp->speed(), mVdp->updated());
     if (!isDetectionBlocked() && checkPreconditions() && checkConditions())
     {
+        //std::cout<<"TrafficJamEndOfQueue::check() sent denm"<<std::endl;
         blockDetection();
         auto message = createMessage();
         auto request = createRequest();
@@ -112,12 +116,16 @@ bool TrafficJamEndOfQueue::checkEgoDeceleration() const
 bool TrafficJamEndOfQueue::checkEndOfQueueReceived() const
 {
     // TODO relevance check for ego vehicle is missing
+    //std::cout<<"CauseCode::DangerousEndOfQueue: "<<mDenmMemory->count(CauseCode::DangerousEndOfQueue)<<std::endl;
+    
     return mDenmMemory->count(CauseCode::DangerousEndOfQueue) >= 1;
 }
 
 bool TrafficJamEndOfQueue::checkJamAheadReceived() const
 {
     // TODO relevance check for ego vehicle is missing
+    //std::cout<<"checkJamAheadReceived: CauseCode::TrafficCondition: "<<mDenmMemory->count(CauseCode::TrafficCondition)<<std::endl;
+    
     return mDenmMemory->count(CauseCode::TrafficCondition) >= 5;
 }
 
@@ -186,6 +194,7 @@ void TrafficJamAhead::check()
     mVelocitySampler.feed(mVdp->speed(), mVdp->updated());
     if (!isDetectionBlocked() && checkPreconditions() && checkConditions())
     {
+        //std::cout<<"TrafficJamAhead::check() sent denm"<<std::endl;
         blockDetection();
         auto message = createMessage();
         auto request = createRequest();
@@ -248,6 +257,7 @@ bool TrafficJamAhead::checkStationaryEgo() const
 bool TrafficJamAhead::checkTrafficJamAheadReceived() const
 {
     // TODO relevance check is missing
+    //std::cout<<"CauseCode::TrafficCondition: "<<mDenmMemory->count(CauseCode::TrafficCondition)<<std::endl;
     return mDenmMemory->count(CauseCode::TrafficCondition) >= 1;
 }
 
@@ -331,6 +341,27 @@ vanetza::btp::DataRequestB TrafficJamAhead::createRequest()
     request.gn.destination = destination;
 
     return request;
+}
+void TrafficJamAhead::indicate(const artery::DenmObject& denmObject1)
+{
+    auto cc = denmObject1.situation_cause_code();
+    if (den::CauseCode::TrafficCondition == cc)
+    {
+        //std::cout<<"TrafficJamAhead::TrafficCondition indicate"<<std::endl;
+    }
+    else if (den::CauseCode::DangerousSituation == cc)
+    {
+        std::cout<<"TrafficJamAhead::DangerousSituation indicate"<<std::endl;
+    }
+    else if (den::CauseCode::EmergencyVehicleApproaching == cc)
+    {
+        std::cout<<"TrafficJamAhead::EmergencyVehicleApproaching indicate"<<std::endl;
+    }
+    
+    //auto denm = denmObject1.shared_ptr();
+    //denmObject1.asn1()->denm.situation;
+
+    
 }
 
 } // namespace den

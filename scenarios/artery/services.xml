@@ -6,11 +6,38 @@
 			<type pattern="artery.inet.Person" match="inverse" />
 		</filters>
 	</service>
-	<service type="artery.application.ExampleService">
+	<!--service type="artery.application.ExampleService">
 		<listener port="4711" />
 		<filters>
-			<name pattern="flow0\.1.*" />
+			<name pattern="vtype0" />
 			<penetration rate="0.1" />
 		</filters>
+	</service-->
+
+	<!--service type="artery.application.DenService">
+		<listener port="2002" />
+		<filters>
+		<name pattern="eebl_veh" />
+			<type pattern="artery.inet.Person" match="inverse" />
+		</filters>
+	</service-->
+	<service type="artery.application.ExampleDenService">
+		<listener port="4711" />
+		<filters>
+			<name pattern="evw_veh" />
+		</filters>
 	</service>
+	<service type="artery.application.ExampleDenService">
+		<listener port="4711" />
+		<filters>
+			<name pattern="host_veh" />
+		</filters>
+	</service>
+	<!--service type="artery.application.den.EmergencyVehicleWarning">
+		<listener port="4711" />
+		<filters>
+			<name pattern="flow1\.1.*" />
+			<penetration rate="0.1" />
+		</filters>
+	</service-->
 </services>

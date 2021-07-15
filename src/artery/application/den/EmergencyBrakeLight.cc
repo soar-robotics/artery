@@ -41,6 +41,7 @@ void EmergencyBrakeLight::check()
     mAccelerationSampler.feed(mVdp->acceleration(), mVdp->updated());
     if (!isDetectionBlocked() && checkConditions())
     {
+        //std::cout<<"EmergencyBrakeLight::check() sent denm"<<std::endl;
         blockDetection();
         auto message = createMessage();
         auto request = createRequest();
@@ -108,6 +109,22 @@ vanetza::btp::DataRequestB EmergencyBrakeLight::createRequest()
 
     return request;
 }
+void EmergencyBrakeLight::indicate(const artery::DenmObject& denmObject1)
+{
+    auto cc = denmObject1.situation_cause_code();
+    if (den::CauseCode::EmergencyVehicleApproaching == cc)
+    {
+        //std::cout<<"EmergencyBrakeLight::EmergencyVehicleApproaching indicate"<<std::endl;
+    }
+    else if (den::CauseCode::DangerousSituation == cc)
+    {
+        //std::cout<<"EmergencyBrakeLight::DangerousSituation indicate"<<std::endl;
+    }
+    
+    //auto denm = denmObject1.shared_ptr();
+    //denmObject1.asn1()->denm.situation;
 
+    
+}
 } // namespace den
 } // namespace artery

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<usecases>
+    <usecase type="artery.application.den.TrafficJamEndOfQueue" />
+    <usecase type="artery.application.den.TrafficJamAhead" />
+    <usecase type="artery.application.den.ImpactReductionContainerExchange" />
+    <usecase type="artery.application.den.EmergencyVehicleWarning" />
+    <usecase type="artery.application.ExampleDenService" />
+    <usecase type="artery.application.ExampleService" />
+</usecases>
