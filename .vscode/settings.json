@@ -95,5 +95,6 @@
         "valarray": "cpp",
         "variant": "cpp",
         "bit": "cpp"
-    }
+    },
+    "editor.fontSize": 16
 }
