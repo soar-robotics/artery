@@ -38,7 +38,7 @@ def createStories(board):
 
 	storyRWW = storyboard.Story(conditionRWW, [signalEffect])
 
-	#board.registerStory(storyRWW)
+	board.registerStory(storyRWW)
 
 	# EVW
 	# condition triggering after 10 simulated seconds
@@ -57,7 +57,7 @@ def createStories(board):
 	story = storyboard.Story(condition, [signalEffect])
 
 	# activate story
-	#board.registerStory(story)
+	board.registerStory(story)
 
 	# Sationary Vehicle
 	# condition triggering after 10 simulated seconds
@@ -81,7 +81,7 @@ def createStories(board):
 
 	# FCW
 	# condition triggering after 10 simulated seconds
-	timeConditionFCW = storyboard.TimeCondition(timeline.seconds(125))
+	timeConditionFCW = storyboard.TimeCondition(timeline.seconds(120))
 
 	# select EVW car
 	carSetConditionFCW = storyboard.CarSetCondition("FCW")
