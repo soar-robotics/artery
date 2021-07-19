@@ -38,8 +38,9 @@ def createStories(board):
 
 	storyRWW = storyboard.Story(conditionRWW, [signalEffect])
 
-	board.registerStory(storyRWW)
+	#board.registerStory(storyRWW)
 
+	# EVW
 	# condition triggering after 10 simulated seconds
 	timeCondition = storyboard.TimeCondition(timeline.seconds(10))
 
@@ -56,9 +57,46 @@ def createStories(board):
 	story = storyboard.Story(condition, [signalEffect])
 
 	# activate story
-	board.registerStory(story)
+	#board.registerStory(story)
 
-	
+	# Sationary Vehicle
+	# condition triggering after 10 simulated seconds
+	timeConditionSV = storyboard.TimeCondition(timeline.seconds(125))
+
+	# select EVW car
+	carSetConditionSV = storyboard.CarSetCondition("SV")
+
+	# create signal effect
+	signalEffectSV = storyboard.SignalEffect("SV")
+
+	# combine conditions
+	conditionSV = storyboard.AndCondition(timeConditionSV, carSetConditionSV)
+	effectSV = storyboard.SpeedEffect(0.1)
+
+	# create story by linking effect and conditions together
+	storySV = storyboard.Story(conditionSV, [signalEffectSV, effectSV])
+
+	# activate story
+	board.registerStory(storySV)
+
+	# FCW
+	# condition triggering after 10 simulated seconds
+	timeConditionFCW = storyboard.TimeCondition(timeline.seconds(125))
+
+	# select EVW car
+	carSetConditionFCW = storyboard.CarSetCondition("FCW")
+
+	# create signal effect
+	signalEffectFCW = storyboard.SignalEffect("FCW")
+
+	# combine conditions
+	conditionFCW = storyboard.AndCondition(timeConditionFCW, carSetConditionFCW)
+
+	# create story by linking effect and conditions together
+	storyFCW = storyboard.Story(conditionFCW, [signalEffectFCW])
+
+	# activate story
+	board.registerStory(storyFCW)
 
 	#EEBL
 	cond1 = storyboard.TimeCondition(timeline.milliseconds(15000))

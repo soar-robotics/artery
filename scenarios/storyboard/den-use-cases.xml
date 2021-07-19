@@ -6,4 +6,6 @@
     <usecase type="artery.application.den.EmergencyBrakeLight" />
     <usecase type="artery.application.den.EmergencyVehicleWarning" />
     <usecase type="artery.application.den.RoadWorkWarning" />
+    <usecase type="artery.application.den.StationaryVehicleTx" />
+    <usecase type="artery.application.den.ForwardCollisionWarningRx" />
 </usecases>

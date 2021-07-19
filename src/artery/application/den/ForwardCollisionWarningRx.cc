@@ -5,7 +5,7 @@
  */
 
 #include "artery/application/DenService.h"
-#include "artery/application/den/EmergencyVehicleWarning.h"
+#include "artery/application/den/ForwardCollisionWarningRx.h"
 #include "artery/application/SampleBufferAlgorithm.h"
 #include "artery/application/VehicleDataProvider.h"
 #include <vanetza/asn1/its/DangerousSituationSubCauseCode.h>
@@ -36,21 +36,21 @@ namespace artery
 namespace den
 {
 
-Define_Module(EmergencyVehicleWarning)
+Define_Module(ForwardCollisionWarningRx)
 const double anglePrecision = 10000000.0;
 const auto microdegree = vanetza::units::degree * boost::units::si::micro;
 const uint16_t HEADING_COMPENSATION= 90;
-const uint16_t BEARING_COMPENSATION = 30;
-const uint16_t EVW_LEVEL_0 = 50;
-const uint16_t EVW_LEVEL_1 = 200;
-const uint16_t EVW_LEVEL_2 = 400;
+const uint16_t BEARING_COMPENSATION = 20;
+const uint16_t FCW_LEVEL_0 = 3;
+const uint16_t FCW_LEVEL_1 = 5;
+const uint16_t FCW_LEVEL_2 = 9;
 template<typename T, typename U>
 long round(const boost::units::quantity<T>& q, const U& u)
 {
 	boost::units::quantity<U> v { q };
 	return std::round(v.value());
 }
-void EmergencyVehicleWarning::initialize(int stage)
+void ForwardCollisionWarningRx::initialize(int stage)
 {
     UseCase::initialize(stage);
     if (stage == 0)
@@ -66,31 +66,31 @@ void EmergencyVehicleWarning::initialize(int stage)
     }
 }
 
-void EmergencyVehicleWarning::check()
+void ForwardCollisionWarningRx::check()
 {
- 
+ /*
     //mAccelerationSampler.feed(mVdp->acceleration(), mVdp->updated());
-    //std::cout<<"EmergencyVehicleWarning tx"<<std::endl;
-    if (mEVWVehicle)//!isDetectionBlocked() && checkConditions())
+    if (mFCWVehicle)//!isDetectionBlocked() && checkConditions())
     {
         //blockDetection();
         auto message = createMessage();
         auto request = createRequest();
         mService->sendDenm(std::move(message), request);
     }
+    */
 }
 
-bool EmergencyVehicleWarning::checkConditions()
+bool ForwardCollisionWarningRx::checkConditions()
 {
     return checkEgoSpeed() && checkEgoDeceleration();
 }
 
-bool EmergencyVehicleWarning::checkEgoSpeed() const
+bool ForwardCollisionWarningRx::checkEgoSpeed() const
 {
     return mVdp->speed() > mSpeedThreshold;
 }
 
-bool EmergencyVehicleWarning::checkEgoDeceleration() const
+bool ForwardCollisionWarningRx::checkEgoDeceleration() const
 {
     const auto& samples = mAccelerationSampler.buffer();
     return samples.full() && std::all_of(samples.begin(), samples.end(),
@@ -99,7 +99,7 @@ bool EmergencyVehicleWarning::checkEgoDeceleration() const
         });
 }
 
-vanetza::asn1::Denm EmergencyVehicleWarning::createMessage()
+vanetza::asn1::Denm ForwardCollisionWarningRx::createMessage()
 {
     auto msg = createMessageSkeleton();
     msg->denm.management.relevanceDistance = vanetza::asn1::allocate<RelevanceDistance_t>();
@@ -120,7 +120,7 @@ vanetza::asn1::Denm EmergencyVehicleWarning::createMessage()
     return msg;
 }
 
-vanetza::btp::DataRequestB EmergencyVehicleWarning::createRequest()
+vanetza::btp::DataRequestB ForwardCollisionWarningRx::createRequest()
 {
     namespace geonet = vanetza::geonet;
     using vanetza::units::si::seconds;
@@ -143,29 +143,15 @@ vanetza::btp::DataRequestB EmergencyVehicleWarning::createRequest()
 
     return request;
 }
-void EmergencyVehicleWarning::indicate(const artery::DenmObject& denm)
+void ForwardCollisionWarningRx::indicate(const artery::DenmObject& denm)
 {
-    /*auto cc = denm.situation_cause_code();
-    if (den::CauseCode::EmergencyVehicleApproaching == cc)
-    {
-        std::cout<<"EmergencyVehicleWarning::EmergencyVehicleApproaching indicate"<<std::endl;
-    }
-    else if (den::CauseCode::DangerousSituation == cc)
-    {
-        std::cout<<"EmergencyVehicleWarning::DangerousSituation indicate"<<std::endl;
-    }*/
-    if (denm & CauseCode::EmergencyVehicleApproaching) {
+    if (denm & CauseCode::StationaryVehicle) {
         const vanetza::asn1::Denm& asn1 = denm.asn1();
 
         hvHeading = vanetza::units::GeoAngle { mVdp->heading() } / vanetza::units::degree;
-        //std::cout<<"HV heading "<<hvHeading<<" Station ID "<<mVdp->getStationId()<<std::endl;
-        //std::cout<<asn1->header.stationID<<std::endl;
-        //std::cout<<asn1->header.messageID<<std::endl;
-
-        //std::cout<<"Cause code"<<asn1->denm.situation->eventType.causeCode<<std::endl;
-        //std::cout<<"heading"<<asn1->denm.location->eventPositionHeading->headingValue<<std::endl;
         auto longitude = round(mVdp->longitude(), microdegree) * Longitude_oneMicrodegreeEast;
 	    auto latitude = round(mVdp->latitude(), microdegree) * Latitude_oneMicrodegreeNorth;
+        hvSpeed = mVdp->speed()/boost::units::si::meter_per_second;
         
         auto latit_1 = asn1->denm.management.eventPosition.latitude;
         auto longi_1 = asn1->denm.management.eventPosition.longitude;
@@ -174,61 +160,44 @@ void EmergencyVehicleWarning::indicate(const artery::DenmObject& denm)
         distance = utils->distance(latitude/anglePrecision, longitude/anglePrecision,
         latit_1/anglePrecision, longi_1/anglePrecision);
         /*
-        std::cout<<"EVV heading "<<evwHeading<< " host heading "<<hvHeading
-        <<" distance "<<distance<<std::endl;
-        */
-        //utils->boostLatLongtoXY(latitude/anglePrecision,longitude/anglePrecision,sX,sY);
-        //std::cout<<"X "<<sX<<" Y "<<sY<<std::endl;
-        //utils->boostLatLongtoXY(latit_1/anglePrecision,longi_1/anglePrecision,eX,eY);
-        //std::cout<<"X "<<eX<<" Y "<<eY<<std::endl;
-
-        /*utils->projLatLongtoXY(stGeoMerc, latitude/anglePrecision, longitude/anglePrecision, sX, sY);
-        std::cout<<"X "<<sX<<" Y "<<sY<<std::endl;
-        utils->projLatLongtoXY(stGeoMerc, latit_1/anglePrecision, longi_1/anglePrecision, eX, eY);
-        std::cout<<"X "<<eX<<" Y "<<eY<<std::endl;
+        std::cout<<"SV heading "<<evwHeading<< " host heading "<<hvHeading
+        <<" distance "<<distance<<" speed "<<hvSpeed<<std::endl;
         */
         auto cordAngle = utils->CoordinatesToAngle(latitude/anglePrecision, longitude/anglePrecision,
                             latit_1/anglePrecision, longi_1/anglePrecision);
 
-        //utils->get_line_heading_length(eX, eY, sX, sY, LineSegHd, LineSegLen);
         /*
         std::cout<<"CoordinatesToAngle "
         <<cordAngle<<" diff "<< static_cast<uint16_t>(abs(hvHeading - cordAngle))
         <<" 180diff "<< static_cast<uint16_t>(abs(180 - hvHeading - cordAngle)) <<std::endl;
         */
-        //LineSegHd *= RAD_TO_DEG;
-        //std::cout<<"LineSegHd "<<LineSegHd;
-        //std::cout<<" hvHeading "<<hvHeading;
-        /*std::cout<<"head diff "<<static_cast<uint16_t>(abs(evwHeading- hvHeading))
-        <<" bear diff "<<static_cast<uint16_t>(abs(hvHeading - LineSegHd))
-        <<" dist " <<distance<<std::endl;*/
-        if(static_cast<uint16_t>(distance) < EVW_LEVEL_0 )//&& (distance > prevDistance))
+        //std::cout<<"FCW__TTC: "<<(distance/hvSpeed)<<std::endl;
+        if(hvSpeed != 0 && static_cast<uint16_t>(distance/hvSpeed) < FCW_LEVEL_0 )//&& (distance > prevDistance))
         {
-            std::cout<<"!!!!!!!!!!!!EmergencyVehicleWarning::Level_0 "<<std::endl;
+            std::cout<<"!!!!!!!!!!!!FCW::Level_0 "<<std::endl;
             mEVWFlag = true;
         }
-        //if(static_cast<uint16_t>(abs(evwHeading- hvHeading)) < HEADING_COMPENSATION)
-        //{
-        if(static_cast<uint16_t>(abs(hvHeading - cordAngle)) < BEARING_COMPENSATION  &&
+        if(hvSpeed != 0 && static_cast<uint16_t>(abs(hvHeading - cordAngle)) < BEARING_COMPENSATION  &&
             static_cast<int16_t>(cordAngle) > 0)
         {
             //i32Ret = 1;
             if (!mEVWFlag)
             {
-                if(static_cast<uint16_t>(distance) < EVW_LEVEL_1)
+                if(static_cast<uint16_t>(distance) < FCW_LEVEL_1)
                 {
-                    std::cout<<"!!!!!!!!!!!!EmergencyVehicleWarning::Level_1 111111111"<<std::endl;
+                    std::cout<<"!!!!!!!!!!!!FCW::Level_1 111111111"<<std::endl;
                     mEVWFlag = true;
                 }
                 else //if(static_cast<uint16_t>(distance) < EEBL_LEVEL_1)
                 {
-                    std::cout<<"!!!!!!!!!!!!EmergencyVehicleWarning::Level_2 11111111111"<<std::endl;
+                    std::cout<<"!!!!!!!!!!!!FCW::Level_2 11111111111"<<std::endl;
                     mEVWFlag = true;
                 }
             }
 
 
         }
+        /*
         else if (static_cast<uint16_t>(abs(evwHeading- hvHeading)) < BEARING_COMPENSATION &&
         static_cast<int16_t>(abs(hvHeading - cordAngle)) > 155  && 
         static_cast<int16_t>(abs(hvHeading - cordAngle)) < 205)
@@ -247,6 +216,7 @@ void EmergencyVehicleWarning::indicate(const artery::DenmObject& denm)
             }
 
         }
+        */
         mEVWFlag = false;
         //prevDistance = distance;
         //}
@@ -291,20 +261,14 @@ void EmergencyVehicleWarning::indicate(const artery::DenmObject& denm)
         }
         */
     }
-    if (denm & CauseCode::DangerousSituation) {
-            const vanetza::asn1::Denm& asn1 = denm.asn1();
-            //std::cout<<"EmergencyVehicleWarning::DangerousSituation indicate_2"<<std::endl;
-        }
-    //auto denm = denmObject1.shared_ptr();
-    //denmObject1.asn1()->denm.situation;
 
     
 }
-void EmergencyVehicleWarning::handleStoryboardTrigger(const StoryboardSignal& signal)
+void ForwardCollisionWarningRx::handleStoryboardTrigger(const StoryboardSignal& signal)
 {
-    if (signal.getCause() == "EVW") {
-        mEVWVehicle = true;
-        std::cout<<"EVW set \n";
+    if (signal.getCause() == "FCW") {
+        mFCWVehicle = true;
+        std::cout<<"FCW set \n";
     }
 }
 } // namespace den
