@@ -671,6 +671,6 @@
         <polys poly_minSize="0.00" poly_exaggeration="1.00" poly_constantSize="0" polyName_show="0" polyName_size="50.00" polyName_color="255,0,128" polyType_show="0" polyType_size="50.00" polyType_color="255,0,128"/>
         <legend showSizeLegend="1"/>
     </scheme>
-    <viewport zoom="400.64" x="646359.23" y="5493192.60"/>
+    <viewport zoom="400.64" x="4830.23" y="5393.60"/>
     <delay value="100.00"/>
 </viewsettings>
