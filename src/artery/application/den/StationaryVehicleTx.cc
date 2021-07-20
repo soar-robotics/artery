@@ -44,6 +44,7 @@ const uint16_t BEARING_COMPENSATION = 30;
 const uint16_t EVW_LEVEL_0 = 50;
 const uint16_t EVW_LEVEL_1 = 200;
 const uint16_t EVW_LEVEL_2 = 400;
+const long STATIONARY_SINCE = 4;
 template<typename T, typename U>
 long round(const boost::units::quantity<T>& q, const U& u)
 {
@@ -115,6 +116,19 @@ vanetza::asn1::Denm StationaryVehicleTx::createMessage()
     msg->denm.situation->informationQuality = 1;
     msg->denm.situation->eventType.causeCode = CauseCodeType_stationaryVehicle;
     msg->denm.situation->eventType.subCauseCode = DangerousSituationSubCauseCode_emergencyElectronicBrakeEngaged;
+    
+    msg->denm.alacarte = vanetza::asn1::allocate<AlacarteContainer_t>();
+    msg->denm.alacarte->stationaryVehicle = vanetza::asn1::allocate<StationaryVehicleContainer_t>();
+    msg->denm.alacarte->stationaryVehicle->stationarySince = vanetza::asn1::allocate<StationarySince_t>();
+    //StationaryVehicleContainer_t &svContainer = *msg->denm.alacarte->stationaryVehicle;
+    //StationarySince_t *svStationarySince = vanetza::asn1::allocate<StationarySince_t>();
+    //*svStationarySince = StationarySince_lessThan2Minutes;
+    *msg->denm.alacarte->stationaryVehicle->stationarySince = StationarySince_lessThan2Minutes;
+    //ASN_SEQUENCE_ADD(&svContainer.stationarySince, svStationarySince);
+    msg->denm.alacarte->stationaryVehicle->stationaryCause = vanetza::asn1::allocate<CauseCode_t>();
+    msg->denm.alacarte->stationaryVehicle->stationaryCause->causeCode = CauseCodeType_stationaryVehicle;
+    msg->denm.alacarte->stationaryVehicle->stationaryCause->subCauseCode = DangerousSituationSubCauseCode_emergencyElectronicBrakeEngaged;
+    //msg->denm.alacarte->stationaryVehicle->energyStorageType = vanetza::asn1::allocate<EnergyStorageType_t>();
 
     // TODO set road type in Location container
     // TODO set lane position in Alacarte container

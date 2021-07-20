@@ -48,6 +48,7 @@ const uint16_t RWW_LEVEL_2 = 400;
 const long RWW_LATITUDE = 17594071;
 const long RWW_LONGITUDE = 78125249;
 const long RWW_HEADING = 180;
+const long SPEED_LIMIT = 20;
 template<typename T, typename U>
 long round(const boost::units::quantity<T>& q, const U& u)
 {
@@ -132,6 +133,24 @@ vanetza::asn1::Denm RoadWorkWarning::createMessage()
     //std::cout<<"event heading "<<round(mVdp->heading(), decidegree)<<std::endl;
     // TODO set road type in Location container
     // TODO set lane position in Alacarte container
+    msg->denm.alacarte = vanetza::asn1::allocate<AlacarteContainer_t>();
+    msg->denm.alacarte->roadWorks =  vanetza::asn1::allocate<RoadWorksContainerExtended_t>();
+    msg->denm.alacarte->roadWorks->lightBarSirenInUse = vanetza::asn1::allocate<LightBarSirenInUse_t>();
+    msg->denm.alacarte->roadWorks->lightBarSirenInUse->buf = static_cast<uint8_t*>(vanetza::asn1::allocate(1));
+	msg->denm.alacarte->roadWorks->lightBarSirenInUse->size = 1;
+	msg->denm.alacarte->roadWorks->lightBarSirenInUse->buf[0] |= 1 << (7 - LightBarSirenInUse_sirenActivated);
+
+    msg->denm.alacarte->roadWorks->closedLanes = vanetza::asn1::allocate<ClosedLanes_t>();
+    msg->denm.alacarte->roadWorks->closedLanes->outerhardShoulderStatus = vanetza::asn1::allocate<HardShoulderStatus_t>();
+    *msg->denm.alacarte->roadWorks->closedLanes->outerhardShoulderStatus = HardShoulderStatus_closed;
+    
+    msg->denm.alacarte->roadWorks->speedLimit = vanetza::asn1::allocate<SpeedLimit_t>();
+    *msg->denm.alacarte->roadWorks->speedLimit = SPEED_LIMIT * SpeedLimit_oneKmPerHour;
+    msg->denm.alacarte->roadWorks->incidentIndication =  vanetza::asn1::allocate<CauseCode_t>();
+    msg->denm.alacarte->roadWorks->incidentIndication->causeCode = CauseCodeType_roadworks;
+    msg->denm.alacarte->roadWorks->incidentIndication->subCauseCode = 0;
+    msg->denm.alacarte->roadWorks->trafficFlowRule =  vanetza::asn1::allocate<TrafficRule_t>();
+    *msg->denm.alacarte->roadWorks->trafficFlowRule = TrafficRule_noPassing;
     //std::cout<<"RWW DENM sent\n";
     return msg;
 }
