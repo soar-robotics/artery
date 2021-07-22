@@ -8,4 +8,5 @@
     <usecase type="artery.application.den.RoadWorkWarning" />
     <usecase type="artery.application.den.StationaryVehicleTx" />
     <usecase type="artery.application.den.ForwardCollisionWarningRx" />
+    <usecase type="artery.application.den.DisasterManagement" />
 </usecases>
