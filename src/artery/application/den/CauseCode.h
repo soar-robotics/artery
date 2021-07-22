@@ -33,7 +33,8 @@ enum class CauseCode
     WrongWayDriving = 14,
     SignalViolation = 98,
     CollisionRisk = 97,
-    DangerousSituation = 99
+    DangerousSituation = 99,
+    DisasterManagement = 101
 };
 
 constexpr CauseCode convert(const CauseCodeType_t& type)

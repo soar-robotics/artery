@@ -5,7 +5,7 @@
  */
 
 #include "artery/application/DenService.h"
-#include "artery/application/den/StationaryVehicleTx.h"
+#include "artery/application/den/DisasterManagement.h"
 #include "artery/application/SampleBufferAlgorithm.h"
 #include "artery/application/VehicleDataProvider.h"
 #include <vanetza/asn1/its/DangerousSituationSubCauseCode.h>
@@ -36,72 +36,40 @@ namespace artery
 namespace den
 {
 
-Define_Module(StationaryVehicleTx)
-const double anglePrecision = 10000000.0;
+Define_Module(DisasterManagement)
+
 const auto microdegree = vanetza::units::degree * boost::units::si::micro;
-const uint16_t HEADING_COMPENSATION= 90;
-const uint16_t BEARING_COMPENSATION = 30;
-const uint16_t EVW_LEVEL_0 = 50;
-const uint16_t EVW_LEVEL_1 = 200;
-const uint16_t EVW_LEVEL_2 = 400;
-const long STATIONARY_SINCE = 4;
+const auto MESSAGE = "abcdefghi";
+
 template<typename T, typename U>
 long round(const boost::units::quantity<T>& q, const U& u)
 {
 	boost::units::quantity<U> v { q };
 	return std::round(v.value());
 }
-void StationaryVehicleTx::initialize(int stage)
+void DisasterManagement::initialize(int stage)
 {
     UseCase::initialize(stage);
     if (stage == 0)
     {
         using boost::units::si::meter_per_second;
         using boost::units::si::meter_per_second_squared;
-
-        mAccelerationSampler.setDuration(par("sampleDuration"));
-        mAccelerationSampler.setInterval(par("sampleInterval"));
-        mSpeedThreshold = par("speedThreshold").doubleValue() * meter_per_second;
-        mDecelerationThreshold = par("decelerationThreshold").doubleValue() * meter_per_second_squared;
-        utils = new V2XUtils();
     }
 }
 
-void StationaryVehicleTx::check()
+void DisasterManagement::check()
 {
- 
-    //mAccelerationSampler.feed(mVdp->acceleration(), mVdp->updated());
-    auto condi = checkConditions();
-    //std::cout<<"check condition"<<condi<<std::endl;
-    if (mSVFlag && condi == true)//!isDetectionBlocked() && checkConditions())
+    if (mDiasterManagementVehicle)//!isDetectionBlocked() && checkConditions())
     {
         //blockDetection();
         auto message = createMessage();
         auto request = createRequest();
         mService->sendDenm(std::move(message), request);
     }
+    
 }
 
-bool StationaryVehicleTx::checkConditions()
-{
-    return checkEgoSpeed();// && checkEgoDeceleration();
-}
-
-bool StationaryVehicleTx::checkEgoSpeed() const
-{
-    return mVdp->speed() < (1 * boost::units::si::meter_per_second);
-}
-
-bool StationaryVehicleTx::checkEgoDeceleration() const
-{
-    const auto& samples = mAccelerationSampler.buffer();
-    return samples.full() && std::all_of(samples.begin(), samples.end(),
-        [this](const Sample<vanetza::units::Acceleration>& sample) -> bool {
-            return sample.value < mDecelerationThreshold;
-        });
-}
-
-vanetza::asn1::Denm StationaryVehicleTx::createMessage()
+vanetza::asn1::Denm DisasterManagement::createMessage()
 {
     auto msg = createMessageSkeleton();
     msg->denm.management.relevanceDistance = vanetza::asn1::allocate<RelevanceDistance_t>();
@@ -114,8 +82,8 @@ vanetza::asn1::Denm StationaryVehicleTx::createMessage()
 
     msg->denm.situation = vanetza::asn1::allocate<SituationContainer_t>();
     msg->denm.situation->informationQuality = 1;
-    msg->denm.situation->eventType.causeCode = CauseCodeType_stationaryVehicle;
-    msg->denm.situation->eventType.subCauseCode = DangerousSituationSubCauseCode_emergencyElectronicBrakeEngaged;
+    msg->denm.situation->eventType.causeCode = CauseCodeType_disasterManagement;
+    msg->denm.situation->eventType.subCauseCode = DangerousSituationSubCauseCode_unavailable;
     
     msg->denm.alacarte = vanetza::asn1::allocate<AlacarteContainer_t>();
     msg->denm.alacarte->stationaryVehicle = vanetza::asn1::allocate<StationaryVehicleContainer_t>();
@@ -126,16 +94,36 @@ vanetza::asn1::Denm StationaryVehicleTx::createMessage()
     *msg->denm.alacarte->stationaryVehicle->stationarySince = StationarySince_lessThan2Minutes;
     //ASN_SEQUENCE_ADD(&svContainer.stationarySince, svStationarySince);
     msg->denm.alacarte->stationaryVehicle->stationaryCause = vanetza::asn1::allocate<CauseCode_t>();
-    msg->denm.alacarte->stationaryVehicle->stationaryCause->causeCode = CauseCodeType_stationaryVehicle;
-    msg->denm.alacarte->stationaryVehicle->stationaryCause->subCauseCode = DangerousSituationSubCauseCode_emergencyElectronicBrakeEngaged;
+    msg->denm.alacarte->stationaryVehicle->stationaryCause->causeCode = CauseCodeType_disasterManagement;
+    msg->denm.alacarte->stationaryVehicle->stationaryCause->subCauseCode = DangerousSituationSubCauseCode_unavailable;
     //msg->denm.alacarte->stationaryVehicle->energyStorageType = vanetza::asn1::allocate<EnergyStorageType_t>();
+    msg->denm.alacarte->stationaryVehicle->vehicleIdentification = vanetza::asn1::allocate<VehicleIdentification_t>();
+    msg->denm.alacarte->stationaryVehicle->vehicleIdentification->wMInumber = 
+    vanetza::asn1::allocate<WMInumber_t>();
+    msg->denm.alacarte->stationaryVehicle->vehicleIdentification->wMInumber->buf = static_cast<uint8_t*>(vanetza::asn1::allocate(3));
+    msg->denm.alacarte->stationaryVehicle->vehicleIdentification->wMInumber->size = 3;
 
+    msg->denm.alacarte->stationaryVehicle->vehicleIdentification->wMInumber->buf[0] = 'a';
+    msg->denm.alacarte->stationaryVehicle->vehicleIdentification->wMInumber->buf[1] = 'b';
+    msg->denm.alacarte->stationaryVehicle->vehicleIdentification->wMInumber->buf[2] = 'c';
+    msg->denm.alacarte->stationaryVehicle->vehicleIdentification->vDS = vanetza::asn1::allocate<VDS_t>();
+    msg->denm.alacarte->stationaryVehicle->vehicleIdentification->vDS->buf = static_cast<uint8_t*>(vanetza::asn1::allocate(6));
+    msg->denm.alacarte->stationaryVehicle->vehicleIdentification->vDS->size = 6;
+
+    msg->denm.alacarte->stationaryVehicle->vehicleIdentification->vDS->buf[0] = 'e';
+    msg->denm.alacarte->stationaryVehicle->vehicleIdentification->vDS->buf[1] = 'f';
+    msg->denm.alacarte->stationaryVehicle->vehicleIdentification->vDS->buf[2] = 'g';
+    msg->denm.alacarte->stationaryVehicle->vehicleIdentification->vDS->buf[3] = 'h';
+    msg->denm.alacarte->stationaryVehicle->vehicleIdentification->vDS->buf[4] = 'i';
+    msg->denm.alacarte->stationaryVehicle->vehicleIdentification->vDS->buf[5] = 'j';
+    //*msg->denm.alacarte->stationaryVehicle->vehicleIdentification->vDS = s;
     // TODO set road type in Location container
     // TODO set lane position in Alacarte container
     return msg;
 }
 
-vanetza::btp::DataRequestB StationaryVehicleTx::createRequest()
+
+vanetza::btp::DataRequestB DisasterManagement::createRequest()
 {
     namespace geonet = vanetza::geonet;
     using vanetza::units::si::seconds;
@@ -158,15 +146,32 @@ vanetza::btp::DataRequestB StationaryVehicleTx::createRequest()
 
     return request;
 }
-void StationaryVehicleTx::indicate(const artery::DenmObject& denm)
+void DisasterManagement::indicate(const artery::DenmObject& denm)
 {
+    if (denm & CauseCode::DisasterManagement) 
+    {
+        const vanetza::asn1::Denm& asn1 = denm.asn1();
+        std::cout<<"SV DENM received cc:"<<asn1->denm.alacarte->stationaryVehicle->stationaryCause->causeCode <<std::endl;
+
+        std::cout<<"SV DENM received w0:"<<asn1->denm.alacarte->stationaryVehicle->vehicleIdentification->wMInumber->buf[0] <<std::endl;
+        std::cout<<"SV DENM received w1:"<<asn1->denm.alacarte->stationaryVehicle->vehicleIdentification->wMInumber->buf[1] <<std::endl;
+        std::cout<<"SV DENM received w2:"<<asn1->denm.alacarte->stationaryVehicle->vehicleIdentification->wMInumber->buf[2] <<std::endl;
+
+        std::cout<<"SV DENM received v0:"<<asn1->denm.alacarte->stationaryVehicle->vehicleIdentification->vDS->buf[0] <<std::endl;
+        std::cout<<"SV DENM received v1:"<<asn1->denm.alacarte->stationaryVehicle->vehicleIdentification->vDS->buf[1] <<std::endl;
+        std::cout<<"SV DENM received v2:"<<asn1->denm.alacarte->stationaryVehicle->vehicleIdentification->vDS->buf[2] <<std::endl;
+        std::cout<<"SV DENM received v3:"<<asn1->denm.alacarte->stationaryVehicle->vehicleIdentification->vDS->buf[3] <<std::endl;
+        std::cout<<"SV DENM received v4:"<<asn1->denm.alacarte->stationaryVehicle->vehicleIdentification->vDS->buf[4] <<std::endl;
+        std::cout<<"SV DENM received v5:"<<asn1->denm.alacarte->stationaryVehicle->vehicleIdentification->vDS->buf[5] <<std::endl;
+    }
+
     
 }
-void StationaryVehicleTx::handleStoryboardTrigger(const StoryboardSignal& signal)
+void DisasterManagement::handleStoryboardTrigger(const StoryboardSignal& signal)
 {
-    if (signal.getCause() == "SV") {
-        mSVFlag = true;
-        std::cout<<"SV set \n";
+    if (signal.getCause() == "DM") {
+        mDiasterManagementVehicle = true;
+        std::cout<<"DisasterManagement set \n";
     }
 }
 } // namespace den

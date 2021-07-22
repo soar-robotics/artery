@@ -43,6 +43,7 @@ add_library(core SHARED
     application/den/RoadWorkWarning.cc
     application/den/StationaryVehicleTx.cc
     application/den/ForwardCollisionWarningRx.cc
+    application/den/DisasterManagement.cc
     application/den/ImpactReductionUseCase.cc
     application/den/Memory.cc
     application/den/SuspendableUseCase.cc
