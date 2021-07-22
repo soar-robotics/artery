@@ -129,7 +129,28 @@ vanetza::asn1::Denm StationaryVehicleTx::createMessage()
     msg->denm.alacarte->stationaryVehicle->stationaryCause->causeCode = CauseCodeType_stationaryVehicle;
     msg->denm.alacarte->stationaryVehicle->stationaryCause->subCauseCode = DangerousSituationSubCauseCode_emergencyElectronicBrakeEngaged;
     //msg->denm.alacarte->stationaryVehicle->energyStorageType = vanetza::asn1::allocate<EnergyStorageType_t>();
+    msg->denm.alacarte->stationaryVehicle->vehicleIdentification = vanetza::asn1::allocate<VehicleIdentification_t>();
+    msg->denm.alacarte->stationaryVehicle->vehicleIdentification->wMInumber = 
+    vanetza::asn1::allocate<WMInumber_t>();
+    //std::string s = "123";
+    msg->denm.alacarte->stationaryVehicle->vehicleIdentification->wMInumber->buf = static_cast<uint8_t*>(vanetza::asn1::allocate(3));
+    msg->denm.alacarte->stationaryVehicle->vehicleIdentification->wMInumber->size = 3;
 
+    msg->denm.alacarte->stationaryVehicle->vehicleIdentification->wMInumber->buf[0] = 'a';
+    msg->denm.alacarte->stationaryVehicle->vehicleIdentification->wMInumber->buf[1] = 'b';
+    msg->denm.alacarte->stationaryVehicle->vehicleIdentification->wMInumber->buf[2] = 'c';
+    //*msg->denm.alacarte->stationaryVehicle->vehicleIdentification->wMInumber = s;
+    msg->denm.alacarte->stationaryVehicle->vehicleIdentification->vDS = vanetza::asn1::allocate<VDS_t>();
+    msg->denm.alacarte->stationaryVehicle->vehicleIdentification->vDS->buf = static_cast<uint8_t*>(vanetza::asn1::allocate(6));
+    msg->denm.alacarte->stationaryVehicle->vehicleIdentification->vDS->size = 6;
+
+    msg->denm.alacarte->stationaryVehicle->vehicleIdentification->vDS->buf[0] = 'e';
+    msg->denm.alacarte->stationaryVehicle->vehicleIdentification->vDS->buf[1] = 'f';
+    msg->denm.alacarte->stationaryVehicle->vehicleIdentification->vDS->buf[2] = 'g';
+    msg->denm.alacarte->stationaryVehicle->vehicleIdentification->vDS->buf[3] = 'h';
+    msg->denm.alacarte->stationaryVehicle->vehicleIdentification->vDS->buf[4] = 'i';
+    msg->denm.alacarte->stationaryVehicle->vehicleIdentification->vDS->buf[5] = 'j';
+    //*msg->denm.alacarte->stationaryVehicle->vehicleIdentification->vDS = s;
     // TODO set road type in Location container
     // TODO set lane position in Alacarte container
     return msg;
