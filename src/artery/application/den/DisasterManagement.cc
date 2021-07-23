@@ -40,8 +40,12 @@ Define_Module(DisasterManagement)
 
 const auto microdegree = vanetza::units::degree * boost::units::si::micro;
 const auto DM_MESSAGE = "abcdefghi";
+const auto CDG_MESSAGE = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+const auto CN_MESSAGE  = "SOAR ROBOTICS 1234567890";
 const auto MESSAGE_LENGTH_3 = 3;
 const auto MESSAGE_LENGTH_6 = 6;
+const auto MESSAGE_LENGTH_24 = 24;
+
 template<typename T, typename U>
 long round(const boost::units::quantity<T>& q, const U& u)
 {
@@ -95,17 +99,33 @@ vanetza::asn1::Denm DisasterManagement::createMessage()
     msg->denm.alacarte->stationaryVehicle->vehicleIdentification = vanetza::asn1::allocate<VehicleIdentification_t>();
     msg->denm.alacarte->stationaryVehicle->vehicleIdentification->wMInumber = 
     vanetza::asn1::allocate<WMInumber_t>();
-    msg->denm.alacarte->stationaryVehicle->vehicleIdentification->wMInumber->buf = static_cast<uint8_t*>(vanetza::asn1::allocate(3));
+    msg->denm.alacarte->stationaryVehicle->vehicleIdentification->wMInumber->buf = static_cast<uint8_t*>(vanetza::asn1::allocate(MESSAGE_LENGTH_3));
     msg->denm.alacarte->stationaryVehicle->vehicleIdentification->wMInumber->size = MESSAGE_LENGTH_3;
 
     std::copy_n(DM_MESSAGE,MESSAGE_LENGTH_3,
     msg->denm.alacarte->stationaryVehicle->vehicleIdentification->wMInumber->buf);
 
     msg->denm.alacarte->stationaryVehicle->vehicleIdentification->vDS = vanetza::asn1::allocate<VDS_t>();
-    msg->denm.alacarte->stationaryVehicle->vehicleIdentification->vDS->buf = static_cast<uint8_t*>(vanetza::asn1::allocate(6));
+    msg->denm.alacarte->stationaryVehicle->vehicleIdentification->vDS->buf = static_cast<uint8_t*>(vanetza::asn1::allocate(MESSAGE_LENGTH_6));
     msg->denm.alacarte->stationaryVehicle->vehicleIdentification->vDS->size = MESSAGE_LENGTH_6;
     std::copy_n(DM_MESSAGE+MESSAGE_LENGTH_3,MESSAGE_LENGTH_6,
     msg->denm.alacarte->stationaryVehicle->vehicleIdentification->vDS->buf);
+
+    msg->denm.alacarte->stationaryVehicle->carryingDangerousGoods = vanetza::asn1::allocate<DangerousGoodsExtended_t>();
+    msg->denm.alacarte->stationaryVehicle->carryingDangerousGoods->emergencyActionCode = vanetza::asn1::allocate<IA5String_t>();
+    msg->denm.alacarte->stationaryVehicle->carryingDangerousGoods->companyName = vanetza::asn1::allocate<UTF8String_t>();
+
+    msg->denm.alacarte->stationaryVehicle->carryingDangerousGoods->emergencyActionCode->buf = 
+    static_cast<uint8_t*>(vanetza::asn1::allocate(MESSAGE_LENGTH_24));
+    msg->denm.alacarte->stationaryVehicle->carryingDangerousGoods->emergencyActionCode->size = MESSAGE_LENGTH_24;
+    std::copy_n(CDG_MESSAGE,MESSAGE_LENGTH_24,
+    msg->denm.alacarte->stationaryVehicle->carryingDangerousGoods->emergencyActionCode->buf);
+
+    msg->denm.alacarte->stationaryVehicle->carryingDangerousGoods->companyName->buf = 
+    static_cast<uint8_t*>(vanetza::asn1::allocate(MESSAGE_LENGTH_24));
+    msg->denm.alacarte->stationaryVehicle->carryingDangerousGoods->companyName->size = MESSAGE_LENGTH_24;
+    std::copy_n(CN_MESSAGE,MESSAGE_LENGTH_24,
+    msg->denm.alacarte->stationaryVehicle->carryingDangerousGoods->companyName->buf);
 
     // TODO set road type in Location container
     // TODO set lane position in Alacarte container
@@ -153,6 +173,10 @@ void DisasterManagement::indicate(const artery::DenmObject& denm)
         std::cout<<"SV DENM received v3:"<<asn1->denm.alacarte->stationaryVehicle->vehicleIdentification->vDS->buf[3] <<std::endl;
         std::cout<<"SV DENM received v4:"<<asn1->denm.alacarte->stationaryVehicle->vehicleIdentification->vDS->buf[4] <<std::endl;
         std::cout<<"SV DENM received v5:"<<asn1->denm.alacarte->stationaryVehicle->vehicleIdentification->vDS->buf[5] <<std::endl;
+
+        printf("CDG msg %s\n",asn1->denm.alacarte->stationaryVehicle->carryingDangerousGoods->emergencyActionCode->buf);
+        printf("CN msg %s\n",asn1->denm.alacarte->stationaryVehicle->carryingDangerousGoods->companyName->buf);
+
     }
 
     
