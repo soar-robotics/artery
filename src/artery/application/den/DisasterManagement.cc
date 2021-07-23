@@ -88,14 +88,14 @@ vanetza::asn1::Denm DisasterManagement::createMessage()
     msg->denm.situation = vanetza::asn1::allocate<SituationContainer_t>();
     msg->denm.situation->informationQuality = 1;
     msg->denm.situation->eventType.causeCode = CauseCodeType_disasterManagement;
-    msg->denm.situation->eventType.subCauseCode = DangerousSituationSubCauseCode_unavailable;
+    msg->denm.situation->eventType.subCauseCode = DisasterManagement_Local_Area_Emergency;
     
     msg->denm.alacarte = vanetza::asn1::allocate<AlacarteContainer_t>();
     msg->denm.alacarte->stationaryVehicle = vanetza::asn1::allocate<StationaryVehicleContainer_t>();
 
     msg->denm.alacarte->stationaryVehicle->stationaryCause = vanetza::asn1::allocate<CauseCode_t>();
     msg->denm.alacarte->stationaryVehicle->stationaryCause->causeCode = CauseCodeType_disasterManagement;
-    msg->denm.alacarte->stationaryVehicle->stationaryCause->subCauseCode = DangerousSituationSubCauseCode_unavailable;
+    msg->denm.alacarte->stationaryVehicle->stationaryCause->subCauseCode = DisasterManagement_Local_Area_Emergency;
     msg->denm.alacarte->stationaryVehicle->vehicleIdentification = vanetza::asn1::allocate<VehicleIdentification_t>();
     msg->denm.alacarte->stationaryVehicle->vehicleIdentification->wMInumber = 
     vanetza::asn1::allocate<WMInumber_t>();
@@ -161,8 +161,9 @@ void DisasterManagement::indicate(const artery::DenmObject& denm)
     if (denm & CauseCode::DisasterManagement) 
     {
         const vanetza::asn1::Denm& asn1 = denm.asn1();
-        std::cout<<"SV DENM received cc:"<<asn1->denm.alacarte->stationaryVehicle->stationaryCause->causeCode <<std::endl;
-
+        std::cout<<"SV DENM received CC:"<<asn1->denm.alacarte->stationaryVehicle->stationaryCause->causeCode 
+        <<" SC "<< asn1->denm.situation->eventType.subCauseCode <<std::endl;
+/*
         std::cout<<"SV DENM received w0:"<<asn1->denm.alacarte->stationaryVehicle->vehicleIdentification->wMInumber->buf[0] <<std::endl;
         std::cout<<"SV DENM received w1:"<<asn1->denm.alacarte->stationaryVehicle->vehicleIdentification->wMInumber->buf[1] <<std::endl;
         std::cout<<"SV DENM received w2:"<<asn1->denm.alacarte->stationaryVehicle->vehicleIdentification->wMInumber->buf[2] <<std::endl;
@@ -173,7 +174,10 @@ void DisasterManagement::indicate(const artery::DenmObject& denm)
         std::cout<<"SV DENM received v3:"<<asn1->denm.alacarte->stationaryVehicle->vehicleIdentification->vDS->buf[3] <<std::endl;
         std::cout<<"SV DENM received v4:"<<asn1->denm.alacarte->stationaryVehicle->vehicleIdentification->vDS->buf[4] <<std::endl;
         std::cout<<"SV DENM received v5:"<<asn1->denm.alacarte->stationaryVehicle->vehicleIdentification->vDS->buf[5] <<std::endl;
-
+*/
+        printf("DM msg %s%s\n",
+        asn1->denm.alacarte->stationaryVehicle->vehicleIdentification->wMInumber->buf,
+        asn1->denm.alacarte->stationaryVehicle->vehicleIdentification->vDS->buf);
         printf("CDG msg %s\n",asn1->denm.alacarte->stationaryVehicle->carryingDangerousGoods->emergencyActionCode->buf);
         printf("CN msg %s\n",asn1->denm.alacarte->stationaryVehicle->carryingDangerousGoods->companyName->buf);
 
