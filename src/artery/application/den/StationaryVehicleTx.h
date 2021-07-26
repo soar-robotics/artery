@@ -34,6 +34,8 @@ protected:
     bool checkConditions();
     bool checkEgoDeceleration() const;
     bool checkEgoSpeed() const;
+    void printDenm(const vanetza::asn1::Denm&);
+
 
     vanetza::asn1::Denm createMessage();
     vanetza::btp::DataRequestB createRequest();

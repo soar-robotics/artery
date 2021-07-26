@@ -63,6 +63,7 @@ void StationaryVehicleTx::initialize(int stage)
         mSpeedThreshold = par("speedThreshold").doubleValue() * meter_per_second;
         mDecelerationThreshold = par("decelerationThreshold").doubleValue() * meter_per_second_squared;
         utils = new V2XUtils();
+        
     }
 }
 
@@ -76,6 +77,7 @@ void StationaryVehicleTx::check()
     {
         //blockDetection();
         auto message = createMessage();
+        printDenm(message);
         auto request = createRequest();
         mService->sendDenm(std::move(message), request);
     }
@@ -155,5 +157,95 @@ void StationaryVehicleTx::handleStoryboardTrigger(const StoryboardSignal& signal
         std::cout<<"SV set \n";
     }
 }
+
+void StationaryVehicleTx::printDenm(const vanetza::asn1::Denm& message)
+{
+
+    const ItsPduHeader_t& header = message->header;
+    std::cout<< "TX:" << std::endl;
+    std::cout<< "ITS PDU Header: "<< "\n";
+    std::cout<< " Protocol Version: " << header.protocolVersion << "\n";
+    std::cout<< " Message ID: " << header.messageID << "\n";
+    std::cout<< " Station ID: " << header.stationID << "\n";
+    
+
+    const DecentralizedEnvironmentalNotificationMessage_t& denm = message->denm;
+    std::cout<< "Decentralized Environmental Notification Message" << "\n";
+
+    //Management Container
+    std::cout<< "Action ID:"<<std::endl;
+    std::cout<< " Orginationg Station ID: " << static_cast<unsigned long> (denm.management.actionID.originatingStationID) << std::endl;
+    std::cout<< " Sequence Number: " <<  static_cast<unsigned long> (denm.management.actionID.sequenceNumber) << std::endl;
+
+    long decTime;
+    asn_INTEGER2long(&message->denm.management.detectionTime, &decTime);
+    std::cout<< "Detection Time: " << decTime << "\n";
+
+    std::cout<< "Event Position: "<<std::endl;
+    std::cout<< " Altitude: "<<std::endl;
+    std::cout<< "  Altitude Confidence: " << static_cast<long> (denm.management.eventPosition.altitude.altitudeConfidence) << "\n";
+    std::cout<< "  Altitude Value: " << static_cast<long> (denm.management.eventPosition.altitude.altitudeValue) << "\n";
+    std::cout<< " Latitude: " << static_cast<long> (denm.management.eventPosition.latitude) << "\n";
+    std::cout<< " Longitude: " << static_cast<long> (denm.management.eventPosition.longitude) << "\n";
+    std::cout<< " Position Confidence Ellipse: " << std::endl;
+    std::cout<< "  Semi Major Confidence: " << static_cast<long> (denm.management.eventPosition.positionConfidenceEllipse.semiMajorConfidence) << "\n";
+    std::cout<< "  Semi Major Orientation: " << static_cast<long> (denm.management.eventPosition.positionConfidenceEllipse.semiMajorOrientation) << "\n";
+    std::cout<< "  Semi Minor Confidence: " << static_cast<long> (denm.management.eventPosition.positionConfidenceEllipse.semiMinorConfidence) << "\n";
+
+    long refTime ;
+    asn_INTEGER2long(&message->denm.management.referenceTime, &refTime);
+    std::cout<< "Reference Time: " << refTime << std::endl;
+
+    std::cout<< "Relevance Distance: " << denm.management.relevanceDistance << "\n";
+    std::cout<< "Relevance Traffic Direction: " << denm.management.relevanceTrafficDirection << "\n";
+    std::cout<< "Station Type: " << denm.management.stationType << "\n";
+    std::cout<< "Termination: " << denm.management.termination << "\n";
+    std::cout<< "Transmission Interval: " << denm.management.transmissionInterval << "\n";
+    std::cout<< "Validity Duration: " << denm.management.validityDuration << "\n";
+
+    //Situation Container
+    std::cout<< "Event History: " << denm.situation->eventHistory << "\n";
+    std::cout<< "Event Type: "<<std::endl;
+    std::cout<< " Cause Code: " << denm.situation->eventType.causeCode << "\n";
+    std::cout<< " Subcause Code: " << denm.situation->eventType.subCauseCode << "\n";
+
+    std::cout<< "Information Quality: " << denm.situation->informationQuality << "\n";
+    std::cout<< "Linked Cause: " << denm.situation->linkedCause << "\n";
+    
+    //LocationContainer
+    std::cout<< "Event Position Heading:\n Heading Confidence: " << denm.location->eventPositionHeading->headingConfidence << "\n";
+    std::cout<< " Heading Value: " << denm.location->eventPositionHeading->headingValue << "\n";
+    std::cout<< "Event Speed: "<<std::endl;
+    std::cout<< " Speed Confidence: " << denm.location->eventSpeed->speedConfidence << "\n";
+    std::cout<< " Speed Value: " << denm.location->eventSpeed->speedValue << "\n";
+
+    std::cout<< "Road Type: " << denm.location->roadType << "\n";
+    std::cout<< "Traces: " << denm.location->traces.list.count << "\n";
+    
+    //AlacarteContainer
+    if(denm.alacarte != nullptr){
+    if(denm.alacarte->externalTemperature != nullptr)
+        std::cout<< "External Temperature: " << denm.alacarte->externalTemperature << "\n";
+
+    if(denm.alacarte->impactReduction != nullptr)
+        std::cout<< "Impact Reduction: " << denm.alacarte->impactReduction << "\n";
+
+    if(denm.alacarte->lanePosition != nullptr)
+        std::cout<< "Lane Position: " << denm.alacarte->lanePosition << "\n";
+
+    if(denm.alacarte->positioningSolution != nullptr)
+        std::cout<< "Positioning Solution: " << denm.alacarte->positioningSolution << "\n";
+
+    if(denm.alacarte->roadWorks != nullptr)
+        std::cout<< "RoadWorks: " << denm.alacarte->roadWorks << "\n";
+
+    if(denm.alacarte->stationaryVehicle != nullptr)
+        std::cout<< "Stationary Vehicle: " << denm.alacarte->stationaryVehicle << "\n";
+    }else{
+        std::cout<< "ALACARTE CONTAINER IS NULL"<<std::endl;
+    }
+
+}
+
 } // namespace den
 } // namespace artery
