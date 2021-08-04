@@ -94,7 +94,23 @@
         "typeinfo": "cpp",
         "valarray": "cpp",
         "variant": "cpp",
-        "bit": "cpp"
+        "bit": "cpp",
+        "stringutils": "cpp",
+        "color": "cpp",
+        "math": "cpp",
+        "boundingsphere": "cpp",
+        "clustercullingcallback": "cpp",
+        "coordinatesystemnode": "cpp",
+        "displaysettings": "cpp",
+        "lod": "cpp",
+        "nodevisitor": "cpp",
+        "plane": "cpp",
+        "polytope": "cpp",
+        "cullingutils": "cpp",
+        "geodata": "cpp",
+        "horizon": "cpp",
+        "units": "cpp",
+        "textbase": "cpp"
     },
     "editor.fontSize": 16
 }

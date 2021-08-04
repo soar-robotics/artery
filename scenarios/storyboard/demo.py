@@ -23,7 +23,7 @@ def createStories(board):
 
 	storyGen = storyboard.Story(conditionGen, [effectLane, effectLaneMode])
 
-	#board.registerStory(storyGen)
+	board.registerStory(storyGen)
 
 	
 	#RWW
@@ -100,7 +100,7 @@ def createStories(board):
 
 	# DM
 	# condition triggering after 10 simulated seconds
-	timeConditionDM = storyboard.TimeCondition(timeline.seconds(131))
+	timeConditionDM = storyboard.TimeCondition(timeline.seconds(121))
 
 	# select EVW car
 	carSetConditionDM = storyboard.CarSetCondition("DM")
@@ -115,7 +115,7 @@ def createStories(board):
 	storyDM = storyboard.Story(conditionDM, [signalEffectDM])
 
 	# activate story
-	board.registerStory(storyDM)
+	#board.registerStory(storyDM)
 
 	#EEBL
 	cond1 = storyboard.TimeCondition(timeline.milliseconds(15000))

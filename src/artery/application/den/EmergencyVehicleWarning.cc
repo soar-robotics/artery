@@ -39,11 +39,20 @@ namespace den
 Define_Module(EmergencyVehicleWarning)
 const double anglePrecision = 10000000.0;
 const auto microdegree = vanetza::units::degree * boost::units::si::micro;
+const auto decidegree = vanetza::units::degree * boost::units::si::deci;
+const auto centimeter_per_second = vanetza::units::si::meter_per_second * boost::units::si::centi;
+
 const uint16_t HEADING_COMPENSATION= 90;
 const uint16_t BEARING_COMPENSATION = 30;
 const uint16_t EVW_LEVEL_0 = 50;
 const uint16_t EVW_LEVEL_1 = 200;
 const uint16_t EVW_LEVEL_2 = 400;
+
+constexpr uint16_t SHM_KEY_RX = 0x1234;
+constexpr uint16_t SHM_KEY_TX = 0x5002;
+constexpr uint16_t SHM_KEY_CV = 0x6001;
+constexpr uint16_t SHM_KEY_OV = 0x6002;
+
 template<typename T, typename U>
 long round(const boost::units::quantity<T>& q, const U& u)
 {
@@ -63,7 +72,112 @@ void EmergencyVehicleWarning::initialize(int stage)
         mSpeedThreshold = par("speedThreshold").doubleValue() * meter_per_second;
         mDecelerationThreshold = par("decelerationThreshold").doubleValue() * meter_per_second_squared;
         utils = new V2XUtils();
+        //IPC data transfer
+        m_SHMIdRx = shmget(SHM_KEY_RX, 1024, 0644|IPC_CREAT);
+        if (m_SHMIdRx == -1) 
+        {
+            perror("Shared memory");
+        //return 1;
+        }
+
+        // Attach to the segment to get a pointer to it.
+        m_pSHMSegmentRx = reinterpret_cast<SHMSegment_t *>(shmat(m_SHMIdRx, NULL, 0));
+        if (m_pSHMSegmentRx == (void *) -1) 
+        {
+            perror("Shared memory attach");
+        //return 1;
+        }
+        memset(m_pSHMSegmentRx, 0, 1024);
+        m_pSHMSegmentRx->validData = false;
+        std::cout<<"shmid Rx: "<<m_SHMIdRx<<std::endl;
+        
+        m_SHMIdTx = shmget(SHM_KEY_TX, 1024, 0644|IPC_CREAT);
+        if (m_SHMIdTx == -1) 
+        {
+            perror("Shared memory");
+        //return 1;
+        }
+
+        // Attach to the segment to get a pointer to it.
+        m_pSHMSegmentTx = reinterpret_cast<SHMSegment_t *>(shmat(m_SHMIdTx, NULL, 0));
+        if (m_pSHMSegmentTx == (void *) -1) 
+        {
+            perror("Shared memory attach");
+        //return 1;
+        }
+        std::cout<<"shmid Tx: "<<m_SHMIdTx<<std::endl;
+        memset(m_pSHMSegmentTx, 0, 1024);
+        m_pSHMSegmentTx->validData = false;
+
+        m_SHMIdCv = shmget(SHM_KEY_CV, 1024, 0644|IPC_CREAT);
+        if (m_SHMIdCv == -1) 
+        {
+            perror("Shared memory");
+        //return 1;
+        }
+
+        // Attach to the segment to get a pointer to it.
+        m_pSHMSegmentCv = reinterpret_cast<SHMSegment_t *>(shmat(m_SHMIdCv, NULL, 0));
+        if (m_pSHMSegmentCv == (void *) -1) 
+        {
+            perror("Shared memory attach");
+        //return 1;
+        }
+        std::cout<<"shmid Tx: "<<m_SHMIdCv<<std::endl;
+        memset(m_pSHMSegmentCv, 0, 1024);
+        m_pSHMSegmentCv->validData = false;
+
+        m_SHMIdOv = shmget(SHM_KEY_OV, 1024, 0644|IPC_CREAT);
+        if (m_SHMIdOv == -1) 
+        {
+            perror("Shared memory");
+        //return 1;
+        }
+
+        // Attach to the segment to get a pointer to it.
+        m_pSHMSegmentOv = reinterpret_cast<SHMSegment_t *>(shmat(m_SHMIdOv, NULL, 0));
+        if (m_pSHMSegmentOv == (void *) -1) 
+        {
+            perror("Shared memory attach");
+        //return 1;
+        }
+        std::cout<<"shmid Tx: "<<m_SHMIdOv<<std::endl;
+        memset(m_pSHMSegmentOv, 0, 1024);
+        m_pSHMSegmentOv->validData = false;
     }
+       
+}
+
+void EmergencyVehicleWarning::copyEVWVehicleData()
+{
+    m_EVWDENMCv.header = 5678;
+        //m_EVWDENMTx.payloadSize = sizeof(m_EVWDENMTx);
+    m_EVWDENMCv.payloadSize = sizeof(EVWTxData_t);
+    m_EVWDENMCv.EVWTxData.stationID = mVdp->station_id();
+    //m_EVWDENMTx.packetCounter =  ;
+    m_EVWDENMCv.EVWTxData.latitude = round(mVdp->latitude(), microdegree) * Latitude_oneMicrodegreeNorth;
+    m_EVWDENMCv.EVWTxData.longitude = round(mVdp->longitude(), microdegree) * Longitude_oneMicrodegreeEast;
+    m_EVWDENMCv.EVWTxData.speed = std::abs(round(mVdp->speed(), centimeter_per_second)) * SpeedValue_oneCentimeterPerSec;
+    m_EVWDENMCv.EVWTxData.heading = round(mVdp->heading(), decidegree);
+    //std::cout<<"EVW Lat :"<<round(mVdp->latitude(), microdegree) * Latitude_oneMicrodegreeNorth<<" "<<
+    //m_EVWDENMCv.EVWTxData.latitude<<" "<<m_EVWDENMCv.EVWTxData.longitude    <<std::endl;
+    /*
+    std::cout<<"Writing copyEVWVehicleData: Complete "<<m_EVWDENMCv.EVWTxData.latitude<<
+         " "<<m_EVWDENMCv.EVWTxData.latitude<<" "<<m_EVWDENMCv.EVWTxData.heading<<std::endl;
+    */
+
+    m_pSHMSegmentCv->cnt = sizeof(m_EVWDENMTx);
+    m_pSHMSegmentCv->complete = 0;
+    //buffer = m_pSHMSegment->buf;
+    m_pSHMSegmentCv->validData = true;
+    memcpy(m_pSHMSegmentCv->buf,&m_EVWDENMCv,m_pSHMSegmentCv->cnt);
+    //spaceavailable = BUF_SIZE;
+    //printf("Writing copyEVWVehicleData: Shared Memory Write: Wrote %d bytes smhid %d\n", m_pSHMSegmentCv->cnt,m_SHMIdTx);
+    m_pSHMSegmentCv->complete = 1;
+    /*
+    std::cout<<"Writing copyEVWVehicleData: Complete "<<m_EVWDENMCv.EVWTxData.latitude<<
+    " "<<m_EVWDENMCv.EVWTxData.latitude<<" "<<m_EVWDENMCv.EVWTxData.heading<<std::endl;
+    */
 }
 
 void EmergencyVehicleWarning::check()
@@ -73,6 +187,7 @@ void EmergencyVehicleWarning::check()
     //std::cout<<"EmergencyVehicleWarning tx"<<std::endl;
     if (mEVWVehicle)//!isDetectionBlocked() && checkConditions())
     {
+        copyEVWVehicleData();
         //blockDetection();
         auto message = createMessage();
         auto request = createRequest();
@@ -117,6 +232,30 @@ vanetza::asn1::Denm EmergencyVehicleWarning::createMessage()
 
     // TODO set road type in Location container
     // TODO set lane position in Alacarte container
+    // cv data tx
+
+    //copying received data;
+    /*
+    if(m_pSHMSegmentRx->validData == true)
+    {
+    	memcpy(&m_EVWDENMRx, m_pSHMSegmentRx->buf, sizeof(EVWDENM_t));
+    	//std::cout << "IPCreceived valid data\n";
+    	//std::cout << m_EVWDENMRx.header<<" "<<m_EVWDENMRx.payloadSize<<" \n";
+
+        msg->header.messageID = m_EVWDENMRx.EVWTxData.stationID;
+        msg->denm.management.actionID.sequenceNumber = m_EVWDENMRx.packetCounter;
+        msg->denm.management.eventPosition.longitude = m_EVWDENMRx.EVWTxData.latitude;
+        msg->denm.management.eventPosition.longitude = m_EVWDENMRx.EVWTxData.longitude;
+        //m_EVWDENMTx.EVWTxData.speed = 4;
+        //m_EVWDENMTx.EVWTxData.heading = msg->denm.location->eventPositionHeading->headingValue;
+        msg->denm.situation->eventType.causeCode = m_EVWDENMRx.EVWTxData.causeCode;
+        msg->denm.situation->eventType.subCauseCode = m_EVWDENMRx.EVWTxData.subCauseCode;
+        m_pSHMSegmentRx->validData = false;
+
+    }
+    */
+    
+
     return msg;
 }
 
@@ -143,6 +282,32 @@ vanetza::btp::DataRequestB EmergencyVehicleWarning::createRequest()
 
     return request;
 }
+void EmergencyVehicleWarning::copyOVData()
+{
+    m_EVWDENMOv.header = 5678;
+        //m_EVWDENMTx.payloadSize = sizeof(m_EVWDENMTx);
+    m_EVWDENMOv.payloadSize = sizeof(EVWTxData_t);
+    m_EVWDENMOv.EVWTxData.stationID = mVdp->station_id();
+    //m_EVWDENMTx.packetCounter =  ;
+    m_EVWDENMOv.EVWTxData.latitude = round(mVdp->latitude(), microdegree) * Latitude_oneMicrodegreeNorth;
+    m_EVWDENMOv.EVWTxData.longitude = round(mVdp->longitude(), microdegree) * Longitude_oneMicrodegreeEast;
+    m_EVWDENMOv.EVWTxData.speed = std::abs(round(mVdp->speed(), centimeter_per_second)) * SpeedValue_oneCentimeterPerSec;
+    m_EVWDENMOv.EVWTxData.heading = round(mVdp->heading(), decidegree);
+    
+    //std::cout<<"OV Lat :"<<round(mVdp->latitude(), microdegree) * Latitude_oneMicrodegreeNorth<<" "<<
+    //m_EVWDENMOv.EVWTxData.latitude<<" "<<m_EVWDENMOv.EVWTxData.longitude    <<std::endl;
+
+    m_pSHMSegmentOv->cnt = sizeof(m_EVWDENMTx);
+    m_pSHMSegmentOv->complete = 0;
+    //buffer = m_pSHMSegment->buf;
+    m_pSHMSegmentOv->validData = true;
+    memcpy(m_pSHMSegmentOv->buf,&m_EVWDENMOv,m_pSHMSegmentOv->cnt);
+    //spaceavailable = BUF_SIZE;
+    //printf("Writing copyOVehicleData: Shared Memory Write: Wrote %d bytes smhid %d\n", m_pSHMSegmentOv->cnt,m_SHMIdTx);
+    m_pSHMSegmentOv->complete = 1;
+    //std::cout<<"Writing copyOVehicleData: Complete\n";
+}
+
 void EmergencyVehicleWarning::indicate(const artery::DenmObject& denm)
 {
     /*auto cc = denm.situation_cause_code();
@@ -156,7 +321,7 @@ void EmergencyVehicleWarning::indicate(const artery::DenmObject& denm)
     }*/
     if (denm & CauseCode::EmergencyVehicleApproaching) {
         const vanetza::asn1::Denm& asn1 = denm.asn1();
-
+        copyOVData();
         hvHeading = vanetza::units::GeoAngle { mVdp->heading() } / vanetza::units::degree;
         //std::cout<<"HV heading "<<hvHeading<<" Station ID "<<mVdp->getStationId()<<std::endl;
         //std::cout<<asn1->header.stationID<<std::endl;
@@ -169,8 +334,8 @@ void EmergencyVehicleWarning::indicate(const artery::DenmObject& denm)
         
         auto latit_1 = asn1->denm.management.eventPosition.latitude;
         auto longi_1 = asn1->denm.management.eventPosition.longitude;
-    
-        evwHeading = asn1->denm.location->eventPositionHeading->headingValue / 10;
+        //std::cout<<"!!!!!!!!!!!!!!!!!!!"<<latitude<<" "<<latit_1<<std::endl;
+        //evwHeading = asn1->denm.location->eventPositionHeading->headingValue / 10;
         distance = utils->distance(latitude/anglePrecision, longitude/anglePrecision,
         latit_1/anglePrecision, longi_1/anglePrecision);
         /*
@@ -202,6 +367,7 @@ void EmergencyVehicleWarning::indicate(const artery::DenmObject& denm)
         /*std::cout<<"head diff "<<static_cast<uint16_t>(abs(evwHeading- hvHeading))
         <<" bear diff "<<static_cast<uint16_t>(abs(hvHeading - LineSegHd))
         <<" dist " <<distance<<std::endl;*/
+        std::cout<<"Distance: "<<distance<<" cordAngle: "<<cordAngle<<std::endl;
         if(static_cast<uint16_t>(distance) < EVW_LEVEL_0 )//&& (distance > prevDistance))
         {
             std::cout<<"!!!!!!!!!!!!EmergencyVehicleWarning::Level_0 "<<std::endl;
@@ -290,6 +456,27 @@ void EmergencyVehicleWarning::indicate(const artery::DenmObject& denm)
             }
         }
         */
+        m_EVWDENMTx.header = 1234;
+        //m_EVWDENMTx.payloadSize = sizeof(m_EVWDENMTx);
+        m_EVWDENMTx.payloadSize = sizeof(EVWTxData_t);
+        m_EVWDENMTx.EVWTxData.stationID = asn1->header.messageID;
+        m_EVWDENMTx.packetCounter = asn1->denm.management.actionID.sequenceNumber ;
+        m_EVWDENMTx.EVWTxData.latitude = asn1->denm.management.eventPosition.latitude;
+        m_EVWDENMTx.EVWTxData.longitude = asn1->denm.management.eventPosition.longitude;
+        m_EVWDENMTx.EVWTxData.speed = 4;
+        m_EVWDENMTx.EVWTxData.heading = asn1->denm.location->eventPositionHeading->headingValue;
+        m_EVWDENMTx.EVWTxData.causeCode = asn1->denm.situation->eventType.causeCode;
+        m_EVWDENMTx.EVWTxData.subCauseCode = asn1->denm.situation->eventType.subCauseCode;
+            
+        m_pSHMSegmentTx->cnt = sizeof(m_EVWDENMTx);
+        m_pSHMSegmentTx->complete = 0;
+        //buffer = m_pSHMSegment->buf;
+        m_pSHMSegmentTx->validData = true;
+        memcpy(m_pSHMSegmentTx->buf,&m_EVWDENMTx,m_pSHMSegmentTx->cnt);
+        //spaceavailable = BUF_SIZE;
+        //printf("Writing Process: Shared Memory Write: Wrote %d bytes smhid %d\n", m_pSHMSegmentTx->cnt,m_SHMIdTx);
+        m_pSHMSegmentTx->complete = 1;
+        //std::cout<<"Writing Process: Complete\n";
     }
     if (denm & CauseCode::DangerousSituation) {
             const vanetza::asn1::Denm& asn1 = denm.asn1();

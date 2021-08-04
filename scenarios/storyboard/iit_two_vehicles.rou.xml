@@ -49,12 +49,12 @@
     <vehicle id="gen" depart="0.00" route="route0"/>
     <flow id="ambulance" type="ambulance" route="route1" begin="10.00" period="3" number="1"/>
    
-    <vehicle id="rww_veh" depart="40.00" route="route2">
+    <!--vehicle id="rww_veh" depart="40.00" route="route2"-->
     <!--stop parkingArea="RoadWorks" duration="40"/-->
-    </vehicle>
-    <vehicle id="SV" depart="85.00" route="routeSV"/>
+    <!--/vehicle-->
+    <!--vehicle id="SV" depart="85.00" route="routeSV"/>
     <vehicle id="FCW" depart="100.00" route="routeSV"/>
-    <vehicle id="DM" depart="130.00" route="routeSV"/>
+    <vehicle id="DM" depart="120.00" route="routeSV"/-->
     <!--trip id="vehicle_0" depart="0.00" from="898464922#0" to="343941711#5-AddedOnRampEdge" via="898464922#1 -742617004#1 -742617004#0 742764915#1 742764915#2 -742766636#1 -742766636#0 742766846#0 742766846#1 742766846#2 742766834#6 742766834#1 742766566#0 742766566#1 742766566#2 742766566#3 742766566#4 742766566#5 742766566#6 742766566#7"/>
     <trip id="vehicle_1" depart="0.00" from="343941711#3" to="-898464922#0" via="305851979#0 305851979#1 305851979#2 305851979#3 305851979#4 305851979#5 305851979#6 305851979#7 305851979#8 742766834#3 742766834#4 898480337#0 898480337#1 898480337#2 742766636#0 742766636#1 -742764915#2 -742764915#1 742617004#0 742617004#1 -898464922#1"/-->
 </routes>
