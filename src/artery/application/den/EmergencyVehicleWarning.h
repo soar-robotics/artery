@@ -20,6 +20,7 @@
 #include<sys/shm.h>
 #include<sys/types.h>
 #include "artery/application/den/EVWData.h"
+#include "artery/application/den/VehicleInfo.h"
 
 constexpr uint16_t BUF_SIZE = 1024;
 struct SHMSegment_t {
@@ -73,11 +74,11 @@ private:
     EVWDENM_t m_EVWDENMRx;
     int m_SHMIdCv;
     SHMSegment_t * m_pSHMSegmentCv;
-    EVWDENM_t m_EVWDENMCv;
+    VehicleInfo_t mVehicleInfoCv;
     void copyEVWVehicleData();
     int m_SHMIdOv;
     SHMSegment_t * m_pSHMSegmentOv;
-    EVWDENM_t m_EVWDENMOv;
+    VehicleInfo_t mVehicleInfoOv;
     void copyOVData();
 
 };

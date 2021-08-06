@@ -123,7 +123,7 @@ void EmergencyVehicleWarning::initialize(int stage)
             perror("Shared memory attach");
         //return 1;
         }
-        std::cout<<"shmid Tx: "<<m_SHMIdCv<<std::endl;
+        std::cout<<"shmid Cv: "<<m_SHMIdCv<<std::endl;
         memset(m_pSHMSegmentCv, 0, 1024);
         m_pSHMSegmentCv->validData = false;
 
@@ -141,7 +141,7 @@ void EmergencyVehicleWarning::initialize(int stage)
             perror("Shared memory attach");
         //return 1;
         }
-        std::cout<<"shmid Tx: "<<m_SHMIdOv<<std::endl;
+        std::cout<<"shmid Ov: "<<m_SHMIdOv<<std::endl;
         memset(m_pSHMSegmentOv, 0, 1024);
         m_pSHMSegmentOv->validData = false;
     }
@@ -150,27 +150,27 @@ void EmergencyVehicleWarning::initialize(int stage)
 
 void EmergencyVehicleWarning::copyEVWVehicleData()
 {
-    m_EVWDENMCv.header = 5678;
+    //m_EVWDENMCv.header = 5678;
         //m_EVWDENMTx.payloadSize = sizeof(m_EVWDENMTx);
-    m_EVWDENMCv.payloadSize = sizeof(EVWTxData_t);
-    m_EVWDENMCv.EVWTxData.stationID = mVdp->station_id();
+   // m_EVWDENMCv.payloadSize = sizeof(EVWTxData_t);
+    mVehicleInfoCv.stationId = mVdp->station_id();
     //m_EVWDENMTx.packetCounter =  ;
-    m_EVWDENMCv.EVWTxData.latitude = round(mVdp->latitude(), microdegree) * Latitude_oneMicrodegreeNorth;
-    m_EVWDENMCv.EVWTxData.longitude = round(mVdp->longitude(), microdegree) * Longitude_oneMicrodegreeEast;
-    m_EVWDENMCv.EVWTxData.speed = std::abs(round(mVdp->speed(), centimeter_per_second)) * SpeedValue_oneCentimeterPerSec;
-    m_EVWDENMCv.EVWTxData.heading = round(mVdp->heading(), decidegree);
-    //std::cout<<"EVW Lat :"<<round(mVdp->latitude(), microdegree) * Latitude_oneMicrodegreeNorth<<" "<<
-    //m_EVWDENMCv.EVWTxData.latitude<<" "<<m_EVWDENMCv.EVWTxData.longitude    <<std::endl;
+    mVehicleInfoCv.latitude = round(mVdp->latitude(), microdegree) * Latitude_oneMicrodegreeNorth;
+    mVehicleInfoCv.longitude = round(mVdp->longitude(), microdegree) * Longitude_oneMicrodegreeEast;
+    mVehicleInfoCv.speed = std::abs(round(mVdp->speed(), centimeter_per_second)) * SpeedValue_oneCentimeterPerSec;
+    mVehicleInfoCv.heading = round(mVdp->heading(), decidegree);
+    std::cout<<"EVW Lat :"<<round(mVdp->latitude(), microdegree) * Latitude_oneMicrodegreeNorth<<" "<<
+    mVehicleInfoCv.latitude<<" "<<mVehicleInfoCv.longitude    <<std::endl;
     /*
     std::cout<<"Writing copyEVWVehicleData: Complete "<<m_EVWDENMCv.EVWTxData.latitude<<
          " "<<m_EVWDENMCv.EVWTxData.latitude<<" "<<m_EVWDENMCv.EVWTxData.heading<<std::endl;
     */
 
-    m_pSHMSegmentCv->cnt = sizeof(m_EVWDENMTx);
+    m_pSHMSegmentCv->cnt = sizeof(mVehicleInfoCv);
     m_pSHMSegmentCv->complete = 0;
     //buffer = m_pSHMSegment->buf;
     m_pSHMSegmentCv->validData = true;
-    memcpy(m_pSHMSegmentCv->buf,&m_EVWDENMCv,m_pSHMSegmentCv->cnt);
+    memcpy(m_pSHMSegmentCv->buf,&mVehicleInfoCv,m_pSHMSegmentCv->cnt);
     //spaceavailable = BUF_SIZE;
     //printf("Writing copyEVWVehicleData: Shared Memory Write: Wrote %d bytes smhid %d\n", m_pSHMSegmentCv->cnt,m_SHMIdTx);
     m_pSHMSegmentCv->complete = 1;
@@ -284,24 +284,24 @@ vanetza::btp::DataRequestB EmergencyVehicleWarning::createRequest()
 }
 void EmergencyVehicleWarning::copyOVData()
 {
-    m_EVWDENMOv.header = 5678;
+    //m_EVWDENMOv.header = 5678;
         //m_EVWDENMTx.payloadSize = sizeof(m_EVWDENMTx);
-    m_EVWDENMOv.payloadSize = sizeof(EVWTxData_t);
-    m_EVWDENMOv.EVWTxData.stationID = mVdp->station_id();
+    //m_EVWDENMOv.payloadSize = sizeof(EVWTxData_t);
+    mVehicleInfoOv.stationId = mVdp->station_id();
     //m_EVWDENMTx.packetCounter =  ;
-    m_EVWDENMOv.EVWTxData.latitude = round(mVdp->latitude(), microdegree) * Latitude_oneMicrodegreeNorth;
-    m_EVWDENMOv.EVWTxData.longitude = round(mVdp->longitude(), microdegree) * Longitude_oneMicrodegreeEast;
-    m_EVWDENMOv.EVWTxData.speed = std::abs(round(mVdp->speed(), centimeter_per_second)) * SpeedValue_oneCentimeterPerSec;
-    m_EVWDENMOv.EVWTxData.heading = round(mVdp->heading(), decidegree);
+    mVehicleInfoOv.latitude = round(mVdp->latitude(), microdegree) * Latitude_oneMicrodegreeNorth;
+    mVehicleInfoOv.longitude = round(mVdp->longitude(), microdegree) * Longitude_oneMicrodegreeEast;
+    mVehicleInfoOv.speed = std::abs(round(mVdp->speed(), centimeter_per_second)) * SpeedValue_oneCentimeterPerSec;
+    mVehicleInfoOv.heading = round(mVdp->heading(), decidegree);
     
     //std::cout<<"OV Lat :"<<round(mVdp->latitude(), microdegree) * Latitude_oneMicrodegreeNorth<<" "<<
     //m_EVWDENMOv.EVWTxData.latitude<<" "<<m_EVWDENMOv.EVWTxData.longitude    <<std::endl;
 
-    m_pSHMSegmentOv->cnt = sizeof(m_EVWDENMTx);
+    m_pSHMSegmentOv->cnt = sizeof(mVehicleInfoOv);
     m_pSHMSegmentOv->complete = 0;
     //buffer = m_pSHMSegment->buf;
     m_pSHMSegmentOv->validData = true;
-    memcpy(m_pSHMSegmentOv->buf,&m_EVWDENMOv,m_pSHMSegmentOv->cnt);
+    memcpy(m_pSHMSegmentOv->buf,&mVehicleInfoOv,m_pSHMSegmentOv->cnt);
     //spaceavailable = BUF_SIZE;
     //printf("Writing copyOVehicleData: Shared Memory Write: Wrote %d bytes smhid %d\n", m_pSHMSegmentOv->cnt,m_SHMIdTx);
     m_pSHMSegmentOv->complete = 1;
