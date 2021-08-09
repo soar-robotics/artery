@@ -115,7 +115,7 @@ def createStories(board):
 	storyDM = storyboard.Story(conditionDM, [signalEffectDM])
 
 	# activate story
-	#board.registerStory(storyDM)
+	board.registerStory(storyDM)
 
 	#EEBL
 	cond1 = storyboard.TimeCondition(timeline.milliseconds(15000))

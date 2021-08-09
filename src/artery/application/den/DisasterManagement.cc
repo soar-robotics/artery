@@ -46,6 +46,11 @@ const auto MESSAGE_LENGTH_3 = 3;
 const auto MESSAGE_LENGTH_6 = 6;
 const auto MESSAGE_LENGTH_24 = 24;
 
+constexpr uint16_t SHM_KEY_RX = 0x5007;
+constexpr uint16_t SHM_KEY_TX = 0x5008;
+//constexpr uint16_t SHM_KEY_CV = 0x6001;
+constexpr uint16_t SHM_KEY_OV = 0x6002;
+
 template<typename T, typename U>
 long round(const boost::units::quantity<T>& q, const U& u)
 {
@@ -59,6 +64,80 @@ void DisasterManagement::initialize(int stage)
     {
         using boost::units::si::meter_per_second;
         using boost::units::si::meter_per_second_squared;
+
+        //IPC data transfer
+        m_SHMIdRx = shmget(SHM_KEY_RX, 1024, 0644|IPC_CREAT);
+        if (m_SHMIdRx == -1) 
+        {
+            perror("Shared memory");
+        //return 1;
+        }
+
+        // Attach to the segment to get a pointer to it.
+        m_pSHMSegmentRx = reinterpret_cast<SHMSegment_t *>(shmat(m_SHMIdRx, NULL, 0));
+        if (m_pSHMSegmentRx == (void *) -1) 
+        {
+            perror("Shared memory attach");
+        //return 1;
+        }
+        memset(m_pSHMSegmentRx, 0, 1024);
+        m_pSHMSegmentRx->validData = false;
+        std::cout<<"shmid Rx: "<<m_SHMIdRx<<std::endl;
+        
+        m_SHMIdTx = shmget(SHM_KEY_TX, 1024, 0644|IPC_CREAT);
+        if (m_SHMIdTx == -1) 
+        {
+            perror("Shared memory");
+        //return 1;
+        }
+
+        // Attach to the segment to get a pointer to it.
+        m_pSHMSegmentTx = reinterpret_cast<SHMSegment_t *>(shmat(m_SHMIdTx, NULL, 0));
+        if (m_pSHMSegmentTx == (void *) -1) 
+        {
+            perror("Shared memory attach");
+        //return 1;
+        }
+        std::cout<<"shmid Tx: "<<m_SHMIdTx<<std::endl;
+        memset(m_pSHMSegmentTx, 0, 1024);
+        m_pSHMSegmentTx->validData = false;
+        /*
+        m_SHMIdCv = shmget(SHM_KEY_CV, 1024, 0644|IPC_CREAT);
+        if (m_SHMIdCv == -1) 
+        {
+            perror("Shared memory");
+        //return 1;
+        }
+
+        // Attach to the segment to get a pointer to it.
+        m_pSHMSegmentCv = reinterpret_cast<SHMSegment_t *>(shmat(m_SHMIdCv, NULL, 0));
+        if (m_pSHMSegmentCv == (void *) -1) 
+        {
+            perror("Shared memory attach");
+        //return 1;
+        }
+        std::cout<<"shmid Cv: "<<m_SHMIdCv<<std::endl;
+        memset(m_pSHMSegmentCv, 0, 1024);
+        m_pSHMSegmentCv->validData = false;
+*/
+        m_SHMIdOv = shmget(SHM_KEY_OV, 1024, 0644|IPC_CREAT);
+        if (m_SHMIdOv == -1) 
+        {
+            perror("Shared memory");
+        //return 1;
+        }
+
+        // Attach to the segment to get a pointer to it.
+        m_pSHMSegmentOv = reinterpret_cast<SHMSegment_t *>(shmat(m_SHMIdOv, NULL, 0));
+        if (m_pSHMSegmentOv == (void *) -1) 
+        {
+            perror("Shared memory attach");
+        //return 1;
+        }
+        std::cout<<"shmid Ov: "<<m_SHMIdOv<<std::endl;
+        memset(m_pSHMSegmentOv, 0, 1024);
+        m_pSHMSegmentOv->validData = false;
+        
     }
 }
 
@@ -127,6 +206,39 @@ vanetza::asn1::Denm DisasterManagement::createMessage()
     std::copy_n(CN_MESSAGE,MESSAGE_LENGTH_24,
     msg->denm.alacarte->stationaryVehicle->carryingDangerousGoods->companyName->buf);
 
+    if(m_pSHMSegmentRx->validData == true)
+    {
+    	memcpy(&mDMDENMRx, m_pSHMSegmentRx->buf, sizeof(DMData_t));
+    	//std::cout << "RWW valid data\n";
+    	//std::cout << m_EVWDENMRx.header<<" "<<m_EVWDENMRx.payloadSize<<" \n";
+
+        //msg->header.messageID = m_EVWDENMRx.EVWTxData.stationID;
+        //msg->denm.management.actionID.sequenceNumber = mDMDENMRx.packetCounter;
+        //msg->denm.management.eventPosition.longitude = mDMDENMTx.DMData.latitude * Latitude_oneMicrodegreeNorth;
+        //msg->denm.management.eventPosition.longitude = mDMDENMTx.DMData.longitude * Longitude_oneMicrodegreeEast;
+        //m_EVWDENMTx.EVWTxData.speed = 4;
+        //m_EVWDENMTx.EVWTxData.heading = msg->denm.location->eventPositionHeading->headingValue;
+        //msg->denm.situation->eventType.causeCode = mDMDENMTx.DMData.causeCode;
+        //msg->denm.situation->eventType.subCauseCode = mDMDENMTx.DMData.subCauseCode;
+        std::cout<<"company name:"<<mDMDENMTx.DMData.companyName<<"\n "<<
+        msg->denm.alacarte->stationaryVehicle->carryingDangerousGoods->companyName->buf<<std::endl;
+        m_pSHMSegmentRx->validData = false;
+        std::copy_n(mDMDENMTx.DMData.wMInumber,MESSAGE_LENGTH_3,
+        msg->denm.alacarte->stationaryVehicle->vehicleIdentification->wMInumber->buf);
+
+        std::copy_n(mDMDENMTx.DMData.vDS, MESSAGE_LENGTH_3,
+        msg->denm.alacarte->stationaryVehicle->vehicleIdentification->vDS->buf);
+
+        std::copy_n(mDMDENMTx.DMData.emergencyActionCode,MESSAGE_LENGTH_24,
+        msg->denm.alacarte->stationaryVehicle->carryingDangerousGoods->emergencyActionCode->buf);
+
+        std::copy_n(mDMDENMTx.DMData.companyName,MESSAGE_LENGTH_24,
+        msg->denm.alacarte->stationaryVehicle->carryingDangerousGoods->companyName->buf);
+        std::cout<<"company name 1:"<<mDMDENMTx.DMData.companyName<<"\n "<<
+        msg->denm.alacarte->stationaryVehicle->carryingDangerousGoods->companyName->buf<<std::endl;
+        m_pSHMSegmentRx->validData = false;
+
+    }
     // TODO set road type in Location container
     // TODO set lane position in Alacarte container
     return msg;

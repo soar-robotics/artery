@@ -159,8 +159,8 @@ void EmergencyVehicleWarning::copyEVWVehicleData()
     mVehicleInfoCv.longitude = round(mVdp->longitude(), microdegree) * Longitude_oneMicrodegreeEast;
     mVehicleInfoCv.speed = std::abs(round(mVdp->speed(), centimeter_per_second)) * SpeedValue_oneCentimeterPerSec;
     mVehicleInfoCv.heading = round(mVdp->heading(), decidegree);
-    std::cout<<"EVW Lat :"<<round(mVdp->latitude(), microdegree) * Latitude_oneMicrodegreeNorth<<" "<<
-    mVehicleInfoCv.latitude<<" "<<mVehicleInfoCv.longitude    <<std::endl;
+    //std::cout<<"EVW Lat :"<<round(mVdp->latitude(), microdegree) * Latitude_oneMicrodegreeNorth<<" "<<
+    //mVehicleInfoCv.latitude<<" "<<mVehicleInfoCv.longitude    <<std::endl;
     /*
     std::cout<<"Writing copyEVWVehicleData: Complete "<<m_EVWDENMCv.EVWTxData.latitude<<
          " "<<m_EVWDENMCv.EVWTxData.latitude<<" "<<m_EVWDENMCv.EVWTxData.heading<<std::endl;
@@ -367,7 +367,7 @@ void EmergencyVehicleWarning::indicate(const artery::DenmObject& denm)
         /*std::cout<<"head diff "<<static_cast<uint16_t>(abs(evwHeading- hvHeading))
         <<" bear diff "<<static_cast<uint16_t>(abs(hvHeading - LineSegHd))
         <<" dist " <<distance<<std::endl;*/
-        std::cout<<"Distance: "<<distance<<" cordAngle: "<<cordAngle<<std::endl;
+        //std::cout<<"Distance: "<<distance<<" cordAngle: "<<cordAngle<<std::endl;
         if(static_cast<uint16_t>(distance) < EVW_LEVEL_0 )//&& (distance > prevDistance))
         {
             std::cout<<"!!!!!!!!!!!!EmergencyVehicleWarning::Level_0 "<<std::endl;

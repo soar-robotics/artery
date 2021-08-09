@@ -14,6 +14,21 @@
 #include "artery/application/ItsG5Service.h"
 #include "artery/application/NetworkInterface.h"
 
+#include "artery/application/den/DMData.h"
+
+#include<sys/ipc.h>
+#include<sys/shm.h>
+#include<sys/types.h>
+#include "artery/application/den/EVWData.h"
+#include "artery/application/den/VehicleInfo.h"
+
+constexpr uint16_t BUF_SIZE = 1024;
+struct SHMSegment_t {
+   int cnt;
+   int complete;
+   bool validData;
+   char buf[BUF_SIZE];
+};
 
 namespace artery
 {
@@ -36,6 +51,20 @@ protected:
 private:
     bool mDiasterManagementVehicle = false;
 
+    int m_SHMIdTx;
+    SHMSegment_t * m_pSHMSegmentTx;
+    int m_SHMIdRx;
+    SHMSegment_t * m_pSHMSegmentRx;
+    DMDENM_t mDMDENMTx;
+	DMDENM_t mDMDENMRx;
+    int m_SHMIdCv;
+    SHMSegment_t * m_pSHMSegmentCv;
+    VehicleInfo_t mVehicleInfoCv;
+    void copyEVWVehicleData();
+    int m_SHMIdOv;
+    SHMSegment_t * m_pSHMSegmentOv;
+    VehicleInfo_t mVehicleInfoOv;
+    void copyOVData();
 };
 
 } // namespace den

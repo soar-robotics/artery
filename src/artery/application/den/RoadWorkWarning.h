@@ -16,6 +16,18 @@
 
 #include "artery/application/V2XUtils.h"
 
+#include<sys/ipc.h>
+#include<sys/shm.h>
+#include<sys/types.h>
+#include "artery/application/den/EVWData.h"
+#include "artery/application/den/VehicleInfo.h"
+constexpr uint16_t BUF_SIZE = 1024;
+struct SHMSegment_t {
+   int cnt;
+   int complete;
+   bool validData;
+   char buf[BUF_SIZE];
+};
 namespace artery
 {
 namespace den
@@ -52,6 +64,22 @@ private:
     //float sX,sY;
     //float LineSegHd, LineSegLen;
     bool mRWWFlag = false;
+
+    int m_SHMIdTx;
+    SHMSegment_t * m_pSHMSegmentTx;
+    int m_SHMIdRx;
+    SHMSegment_t * m_pSHMSegmentRx;
+    EVWDENM_t m_EVWDENMTx;
+    EVWDENM_t m_EVWDENMRx;
+    int m_SHMIdCv;
+    SHMSegment_t * m_pSHMSegmentCv;
+    VehicleInfo_t mVehicleInfoCv;
+    void copyEVWVehicleData();
+    int m_SHMIdOv;
+    SHMSegment_t * m_pSHMSegmentOv;
+    VehicleInfo_t mVehicleInfoOv;
+    void copyOVData();
+
 };
 
 } // namespace den
