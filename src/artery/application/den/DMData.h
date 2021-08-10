@@ -17,14 +17,15 @@ struct DMData_t{
 	uint64_t stationID;
 	int64_t latitude;
 	int64_t longitude;
-	//uint16_t speed;
-	//uint16_t heading;
+
 	uint32_t causeCode;
 	uint32_t subCauseCode;
+	
 	uint8_t wMInumber[MESSAGE_LENGTH_3];
 	uint8_t vDS[MESSAGE_LENGTH_3];
 	uint8_t emergencyActionCode[MESSAGE_LENGTH_24];
 	uint8_t companyName[MESSAGE_LENGTH_24];
+	
 
 }__attribute__((packed));
 

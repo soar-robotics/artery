@@ -22,7 +22,7 @@
 #include "artery/application/den/EVWData.h"
 #include "artery/application/den/VehicleInfo.h"
 
-constexpr uint16_t BUF_SIZE = 1024;
+constexpr uint16_t BUF_SIZE = 4096;
 struct SHMSegment_t {
    int cnt;
    int complete;
@@ -57,6 +57,8 @@ private:
     SHMSegment_t * m_pSHMSegmentRx;
     DMDENM_t mDMDENMTx;
 	DMDENM_t mDMDENMRx;
+    //EVWDENM_t mDMDENMTx;
+	//EVWDENM_t mDMDENMRx;
     int m_SHMIdCv;
     SHMSegment_t * m_pSHMSegmentCv;
     VehicleInfo_t mVehicleInfoCv;

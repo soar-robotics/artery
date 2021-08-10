@@ -46,7 +46,7 @@ const auto MESSAGE_LENGTH_3 = 3;
 const auto MESSAGE_LENGTH_6 = 6;
 const auto MESSAGE_LENGTH_24 = 24;
 
-constexpr uint16_t SHM_KEY_RX = 0x5007;
+constexpr uint16_t SHM_KEY_RX = 0x6003;
 constexpr uint16_t SHM_KEY_TX = 0x5008;
 //constexpr uint16_t SHM_KEY_CV = 0x6001;
 constexpr uint16_t SHM_KEY_OV = 0x6002;
@@ -66,7 +66,7 @@ void DisasterManagement::initialize(int stage)
         using boost::units::si::meter_per_second_squared;
 
         //IPC data transfer
-        m_SHMIdRx = shmget(SHM_KEY_RX, 1024, 0644|IPC_CREAT);
+        m_SHMIdRx = shmget(SHM_KEY_RX, 4096, 0644|IPC_CREAT);
         if (m_SHMIdRx == -1) 
         {
             perror("Shared memory");
@@ -80,11 +80,11 @@ void DisasterManagement::initialize(int stage)
             perror("Shared memory attach");
         //return 1;
         }
-        memset(m_pSHMSegmentRx, 0, 1024);
+        memset(m_pSHMSegmentRx, 0, 4096);
         m_pSHMSegmentRx->validData = false;
         std::cout<<"shmid Rx: "<<m_SHMIdRx<<std::endl;
         
-        m_SHMIdTx = shmget(SHM_KEY_TX, 1024, 0644|IPC_CREAT);
+        m_SHMIdTx = shmget(SHM_KEY_TX, 4096, 0644|IPC_CREAT);
         if (m_SHMIdTx == -1) 
         {
             perror("Shared memory");
@@ -99,7 +99,7 @@ void DisasterManagement::initialize(int stage)
         //return 1;
         }
         std::cout<<"shmid Tx: "<<m_SHMIdTx<<std::endl;
-        memset(m_pSHMSegmentTx, 0, 1024);
+        memset(m_pSHMSegmentTx, 0, 4096);
         m_pSHMSegmentTx->validData = false;
         /*
         m_SHMIdCv = shmget(SHM_KEY_CV, 1024, 0644|IPC_CREAT);
@@ -208,21 +208,24 @@ vanetza::asn1::Denm DisasterManagement::createMessage()
 
     if(m_pSHMSegmentRx->validData == true)
     {
-    	memcpy(&mDMDENMRx, m_pSHMSegmentRx->buf, sizeof(DMData_t));
+    	memcpy(&mDMDENMRx, m_pSHMSegmentRx->buf, sizeof(DMDENM_t));
     	//std::cout << "RWW valid data\n";
     	//std::cout << m_EVWDENMRx.header<<" "<<m_EVWDENMRx.payloadSize<<" \n";
 
         //msg->header.messageID = m_EVWDENMRx.EVWTxData.stationID;
         //msg->denm.management.actionID.sequenceNumber = mDMDENMRx.packetCounter;
-        //msg->denm.management.eventPosition.longitude = mDMDENMTx.DMData.latitude * Latitude_oneMicrodegreeNorth;
-        //msg->denm.management.eventPosition.longitude = mDMDENMTx.DMData.longitude * Longitude_oneMicrodegreeEast;
+        msg->denm.management.eventPosition.latitude = mDMDENMRx.DMData.latitude * Latitude_oneMicrodegreeNorth;
+        msg->denm.management.eventPosition.longitude = mDMDENMRx.DMData.longitude * Longitude_oneMicrodegreeEast;
+        //std::cout<<"DM Lati:"<<mDMDENMRx.DMData.latitude<<" "<<mDMDENMRx.header<<std::endl;
         //m_EVWDENMTx.EVWTxData.speed = 4;
         //m_EVWDENMTx.EVWTxData.heading = msg->denm.location->eventPositionHeading->headingValue;
-        //msg->denm.situation->eventType.causeCode = mDMDENMTx.DMData.causeCode;
-        //msg->denm.situation->eventType.subCauseCode = mDMDENMTx.DMData.subCauseCode;
-        std::cout<<"company name:"<<mDMDENMTx.DMData.companyName<<"\n "<<
-        msg->denm.alacarte->stationaryVehicle->carryingDangerousGoods->companyName->buf<<std::endl;
-        m_pSHMSegmentRx->validData = false;
+        msg->denm.situation->eventType.causeCode = mDMDENMRx.DMData.causeCode;
+        msg->denm.situation->eventType.subCauseCode = mDMDENMRx.DMData.subCauseCode;
+        
+        //std::cout<<"company name:"<<mDMDENMTx.DMData.companyName<<"\n "<<
+        //msg->denm.alacarte->stationaryVehicle->carryingDangerousGoods->companyName->buf<<std::endl;
+        //m_pSHMSegmentRx->validData = false;
+        /*
         std::copy_n(mDMDENMTx.DMData.wMInumber,MESSAGE_LENGTH_3,
         msg->denm.alacarte->stationaryVehicle->vehicleIdentification->wMInumber->buf);
 
@@ -234,9 +237,27 @@ vanetza::asn1::Denm DisasterManagement::createMessage()
 
         std::copy_n(mDMDENMTx.DMData.companyName,MESSAGE_LENGTH_24,
         msg->denm.alacarte->stationaryVehicle->carryingDangerousGoods->companyName->buf);
-        std::cout<<"company name 1:"<<mDMDENMTx.DMData.companyName<<"\n "<<
-        msg->denm.alacarte->stationaryVehicle->carryingDangerousGoods->companyName->buf<<std::endl;
+        */
+       std::cout<<"company name 1:"<<mDMDENMRx.DMData.companyName<<"\n ";
+       
+        memcpy(msg->denm.alacarte->stationaryVehicle->carryingDangerousGoods->companyName->buf,
+        mDMDENMRx.DMData.companyName, MESSAGE_LENGTH_24);
+
+         memcpy(msg->denm.alacarte->stationaryVehicle->carryingDangerousGoods->emergencyActionCode->buf,
+        mDMDENMRx.DMData.emergencyActionCode, MESSAGE_LENGTH_24);
+
+         memcpy(msg->denm.alacarte->stationaryVehicle->vehicleIdentification->vDS->buf,
+        mDMDENMRx.DMData.vDS, MESSAGE_LENGTH_3);
+
+         memcpy(msg->denm.alacarte->stationaryVehicle->vehicleIdentification->wMInumber->buf,
+        mDMDENMRx.DMData.wMInumber, MESSAGE_LENGTH_3);
+
+        
+        //std::cout<<"company name 1:"<<mDMDENMRx.DMData.companyName<<"\n ";//<<
+        //msg->denm.alacarte->stationaryVehicle->carryingDangerousGoods->companyName->buf<<std::endl;
+        
         m_pSHMSegmentRx->validData = false;
+        
 
     }
     // TODO set road type in Location container
@@ -293,6 +314,36 @@ void DisasterManagement::indicate(const artery::DenmObject& denm)
         printf("CDG msg %s\n",asn1->denm.alacarte->stationaryVehicle->carryingDangerousGoods->emergencyActionCode->buf);
         printf("CN msg %s\n",asn1->denm.alacarte->stationaryVehicle->carryingDangerousGoods->companyName->buf);
 
+        mDMDENMTx.header = 1234;
+        //m_EVWDENMTx.payloadSize = sizeof(m_EVWDENMTx);
+        mDMDENMTx.payloadSize = sizeof(DMDENM_t);
+        mDMDENMTx.DMData.stationID = asn1->header.messageID;
+        mDMDENMTx.packetCounter = asn1->denm.management.actionID.sequenceNumber ;
+        mDMDENMTx.DMData.latitude = asn1->denm.management.eventPosition.latitude;
+        mDMDENMTx.DMData.longitude = asn1->denm.management.eventPosition.longitude;
+        //mDMDENMTx.DMData.speed = 4;
+        //mDMDENMTx.DMData.heading = asn1->denm.location->eventPositionHeading->headingValue;
+        mDMDENMTx.DMData.causeCode = asn1->denm.situation->eventType.causeCode;
+        mDMDENMTx.DMData.subCauseCode = asn1->denm.situation->eventType.subCauseCode;
+        memcpy(mDMDENMTx.DMData.wMInumber,  
+        asn1->denm.alacarte->stationaryVehicle->vehicleIdentification->wMInumber->buf, MESSAGE_LENGTH_3);
+		memcpy(mDMDENMTx.DMData.vDS,  
+        asn1->denm.alacarte->stationaryVehicle->vehicleIdentification->vDS->buf,MESSAGE_LENGTH_3);
+		memcpy(mDMDENMTx.DMData.emergencyActionCode, 
+        asn1->denm.alacarte->stationaryVehicle->carryingDangerousGoods->emergencyActionCode->buf, MESSAGE_LENGTH_24);
+		memcpy(mDMDENMTx.DMData.companyName, 
+        asn1->denm.alacarte->stationaryVehicle->carryingDangerousGoods->companyName->buf ,MESSAGE_LENGTH_24);
+            
+        m_pSHMSegmentTx->cnt = sizeof(mDMDENMTx);
+        m_pSHMSegmentTx->complete = 0;
+        //buffer = m_pSHMSegment->buf;
+        m_pSHMSegmentTx->validData = true;
+        memcpy(m_pSHMSegmentTx->buf,&mDMDENMTx,m_pSHMSegmentTx->cnt);
+        //spaceavailable = BUF_SIZE;
+        //printf("Writing Process: Shared Memory Write: Wrote %d bytes smhid %d\n", m_pSHMSegmentTx->cnt,m_SHMIdTx);
+        m_pSHMSegmentTx->complete = 1;
+        //std::cout<<"Writing Process: Complete\n";
+    
     }
 
     

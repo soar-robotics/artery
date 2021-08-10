@@ -276,7 +276,7 @@ vanetza::asn1::Denm RoadWorkWarning::createMessage()
 
         //msg->header.messageID = m_EVWDENMRx.EVWTxData.stationID;
         msg->denm.management.actionID.sequenceNumber = m_EVWDENMRx.packetCounter;
-        msg->denm.management.eventPosition.longitude = m_EVWDENMRx.EVWTxData.latitude * Latitude_oneMicrodegreeNorth;
+        msg->denm.management.eventPosition.latitude = m_EVWDENMRx.EVWTxData.latitude * Latitude_oneMicrodegreeNorth;
         msg->denm.management.eventPosition.longitude = m_EVWDENMRx.EVWTxData.longitude * Longitude_oneMicrodegreeEast;
         //m_EVWDENMTx.EVWTxData.speed = 4;
         //m_EVWDENMTx.EVWTxData.heading = msg->denm.location->eventPositionHeading->headingValue;
