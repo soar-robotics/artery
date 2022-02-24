@@ -7,7 +7,7 @@ import timeline
 print ("demo.py successfully imported...")
 
 def createStories(board):
-	
+	'''
 	#Generic Car
 	timeConditionGen = storyboard.TimeCondition(timeline.seconds(3))
 	# select RWW car
@@ -38,8 +38,8 @@ def createStories(board):
 
 	storyRWW = storyboard.Story(conditionRWW, [signalEffect])
 
-	board.registerStory(storyRWW)
-
+	#board.registerStory(storyRWW)
+	'''
 	# EVW
 	# condition triggering after 10 simulated seconds
 	timeCondition = storyboard.TimeCondition(timeline.seconds(10))
@@ -58,7 +58,7 @@ def createStories(board):
 
 	# activate story
 	board.registerStory(story)
-
+	'''
 	# Sationary Vehicle
 	# condition triggering after 10 simulated seconds
 	timeConditionSV = storyboard.TimeCondition(timeline.seconds(125))
@@ -77,7 +77,7 @@ def createStories(board):
 	storySV = storyboard.Story(conditionSV, [signalEffectSV, effectSV])
 
 	# activate story
-	board.registerStory(storySV)
+	#board.registerStory(storySV)
 
 	# FCW
 	# condition triggering after 10 simulated seconds
@@ -96,7 +96,7 @@ def createStories(board):
 	storyFCW = storyboard.Story(conditionFCW, [signalEffectFCW])
 
 	# activate story
-	board.registerStory(storyFCW)
+	#board.registerStory(storyFCW)
 
 	# DM
 	# condition triggering after 10 simulated seconds
@@ -115,7 +115,7 @@ def createStories(board):
 	storyDM = storyboard.Story(conditionDM, [signalEffectDM])
 
 	# activate story
-	board.registerStory(storyDM)
+	#board.registerStory(storyDM)
 
 	#EEBL
 	cond1 = storyboard.TimeCondition(timeline.milliseconds(15000))
@@ -137,6 +137,7 @@ def createStories(board):
 	story2= storyboard.Story(and2, [effect1])
 	#board.registerStory(story1)
 	#board.registerStory(story2)
+	'''
 	'''
 	# Create coordinates needed for the PolygonCondition
 	coord0 = storyboard.Coord(0.0, 0.0)
